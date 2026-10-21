@@ -20,7 +20,7 @@ const Modules = {
       const spent = s.expenses.filter(e => monthOf(e.date) === m).reduce((a, e) => a + e.amt, 0);
       const nw = s.assets.reduce((a, x) => a + (x.kind === 'debt' ? -x.val : x.val), 0);
       const nxt = s.deadlines.map(x => ({ x, ...daysUntil(x) })).sort((a, b) => a.days - b.days).slice(0, 3);
-      const tiles = ['spese', 'scadenze', 'prestiti', 'risparmio', 'patrimonio', 'invest'].map(id => `<a class="tile" href="#/${id}"><div class="ic">${Modules[id].icon}</div><h3>${t(id)}</h3><p>${t('d_' + id)}</p></a>`).join('');
+      const tiles = ['spese', 'scadenze', 'prestiti', 'risparmio', 'patrimonio', 'invest', 'portafoglio'].map(id => `<a class="tile" href="#/${id}"><div class="ic">${Modules[id].icon}</div><h3>${t(id)}</h3><p>${t('d_' + id)}</p></a>`).join('');
       root.innerHTML = `<h1>${t('welcome')} 👋</h1><p class="sub tagline">${t('tagline')}</p>
       <div class="card"><label>${t('pick_profile')}</label><select class="f" id="prof">${['casa', 'attivita', 'inv'].map(p => `<option value="${p}" ${s.profile === p ? 'selected' : ''}>${t('p_' + (p === 'inv' ? 'inv' : p))}</option>`).join('')}</select></div>
       <div class="res"><div>${t('this_month')} · ${t('spese')}<b>${fmt(spent)}</b></div><div>${t('net_worth')}<b class="${nw < 0 ? 'bad' : 'ok'}">${fmt(nw)}</b></div></div>
@@ -171,6 +171,66 @@ const Modules = {
         const v = parseFloat($('av').value); if (!(v > 0) || !$('an').value.trim()) return;
         s.assets.push({ id: uid(), name: $('an').value.trim(), val: v, kind: $('ak').value }); State.save(); $('an').value = ''; $('av').value = ''; draw();
       };
+      draw();
+    }
+  },
+
+  portafoglio: {
+    icon: '📊', adv: true, render(root) {
+      const s = State.get(); s.port = Array.isArray(s.port) ? s.port : [];
+      root.innerHTML = head('portafoglio', 'd_portafoglio') + `<div class="cols"><div class="card">
+        <label>${t('ticker')}</label><input type="text" id="pt" maxlength="20"><label>${t('qty')}</label><input type="number" id="pq" min="0" step="any" style="width:100%">
+        <label>${t('avg_cost')}</label><input type="number" id="pc" min="0" step="any" style="width:100%"><label>${t('last_price')}</label><input type="number" id="pl" min="0" step="any" style="width:100%">
+        <p><button id="padd">${t('add')}</button></p>
+        <p class="noprint"><label>${t('import_csv')}</label><input type="file" id="pf" accept=".csv,.txt,text/csv"></p><p class="sub" id="pmsg"></p></div>
+        <div class="card"><div class="res" id="res"></div><canvas id="pie"></canvas><div class="legend" id="lg"></div></div></div>
+        <div class="card"><div id="al"></div><p class="sub">${t('port_note')}</p><p class="noprint"><button onclick="print()">${t('print')}</button> <button id="pcsv">${t('csv')}</button></p></div>`;
+      const draw = () => {
+        const tv = s.port.reduce((a, x) => a + x.q * x.l, 0), tc = s.port.reduce((a, x) => a + x.q * x.c, 0), g = tv - tc;
+        $('res').innerHTML = `<div>${t('value')}<b>${fmt(tv)}</b></div><div>${t('port_cost')}<b>${fmt(tc)}</b></div><div>${t('gain')}<b class="${g < 0 ? 'bad' : 'ok'}">${fmt(g)}${tc > 0 ? ' (' + num(g / tc * 100, 1) + '%)' : ''}</b></div>`;
+        pieChart($('pie'), s.port.map(x => ({ label: x.t, value: x.q * x.l })).filter(x => x.value > 0).sort((a, b) => b.value - a.value), $('lg'));
+        $('al').innerHTML = s.port.length ? `<table><tr><th>${t('ticker')}</th><th>${t('qty')}</th><th>${t('avg_cost')}</th><th>${t('last_price')}</th><th>${t('value')}</th><th>${t('gain')}</th><th></th></tr>${s.port.map(x => { const v = x.q * x.l, p = v - x.q * x.c; return `<tr><td><b>${esc(x.t)}</b></td><td>${num(x.q, 4)}</td><td>${fmt(x.c)}</td><td><input type="number" class="px" data-id="${esc(x.id)}" value="${x.l}" step="any" min="0" style="width:96px"></td><td>${fmt(v)}${tv > 0 ? ' <small>' + num(v / tv * 100, 1) + '%</small>' : ''}</td><td class="${p < 0 ? 'bad' : 'ok'}">${fmt(p)}</td><td class="noprint"><button class="del" data-id="${esc(x.id)}">${t('del')}</button></td></tr>`; }).join('')}</table>` : `<p class="sub">${t('empty')}</p>`;
+        $('al').querySelectorAll('.del').forEach(b => b.onclick = () => { s.port = s.port.filter(x => x.id !== b.dataset.id); State.save(); draw(); });
+        $('al').querySelectorAll('.px').forEach(i => i.onchange = () => { const p = s.port.find(x => x.id === i.dataset.id), v = parseFloat(i.value); if (p && v >= 0) { p.l = v; State.save(); draw(); } });
+      };
+      $('padd').onclick = () => {
+        const q = parseFloat($('pq').value), c = parseFloat($('pc').value), tk = $('pt').value.trim();
+        if (!tk || !(q > 0) || !(c >= 0)) return;
+        const l = parseFloat($('pl').value); s.port.push({ id: uid(), t: tk, q, c, l: l >= 0 ? l : c });
+        State.save(); ['pt', 'pq', 'pc', 'pl'].forEach(k => $(k).value = ''); draw();
+      };
+      const toNum = v => {
+        v = String(v == null ? '' : v).replace(/[^\d.,\-]/g, '');
+        const a = v.lastIndexOf(','), b = v.lastIndexOf('.');
+        v = a > b ? v.replace(/\./g, '').replace(',', '.') : v.replace(/,/g, '');
+        const n = parseFloat(v); return isFinite(n) ? n : NaN;
+      };
+      const find = (hd, keys) => hd.findIndex(h => keys.some(k => h.includes(k)));
+      $('pf').onchange = e => {
+        const f = e.target.files[0]; if (!f) return;
+        if (f.size > 1e6) { $('pmsg').textContent = t('csv_err'); return; }
+        const r = new FileReader();
+        r.onload = () => {
+          const lines = String(r.result).replace(/^\ufeff/, '').split(/\r?\n/).filter(x => x.trim());
+          const dl = [';', '\t', ','].reduce((b, d) => (lines[0] || '').split(d).length > (lines[0] || '').split(b).length ? d : b, ';');
+          const cut = x => x.split(dl).map(c => c.trim().replace(/^"|"$/g, ''));
+          const hd = cut(lines[0] || '').map(h => h.toLowerCase());
+          const iT = find(hd, ['symbol', 'ticker', 'simbolo', 'isin', 'titolo', 'strumento', 'instrument', 'security', 'name', 'descrizione', 'nome']);
+          const iQ = find(hd, ['quant', 'qty', 'shares', 'pezzi', 'unit']);
+          const iC = find(hd, ['medio', 'carico', 'avg', 'average', 'cost', 'acquisto', 'price', 'prezzo']);
+          let iL = find(hd, ['last', 'ultimo', 'current', 'corrente', 'mercato', 'market', 'close', 'chiusura']);
+          if (iL === iC) iL = -1;
+          if (iT < 0 || iQ < 0 || iC < 0) { $('pmsg').textContent = t('csv_err'); return; }
+          let n = 0;
+          lines.slice(1, 501).forEach(ln => {
+            const c = cut(ln), q = toNum(c[iQ]), p = toNum(c[iC]), l = iL >= 0 ? toNum(c[iL]) : NaN, tk = (c[iT] || '').slice(0, 20);
+            if (tk && q > 0 && p >= 0) { s.port.push({ id: uid(), t: tk, q, c: p, l: l >= 0 ? l : p }); n++; }
+          });
+          State.save(); $('pmsg').textContent = n ? t('csv_done', { n }) : t('csv_err'); draw();
+        };
+        r.readAsText(f); e.target.value = '';
+      };
+      $('pcsv').onclick = () => download('portafoglio.csv', toCSV([[t('ticker'), t('qty'), t('avg_cost'), t('last_price'), t('value')]].concat(s.port.map(x => [x.t, x.q, x.c, x.l, x.q * x.l]))), 'text/csv');
       draw();
     }
   },

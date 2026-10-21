@@ -100,7 +100,7 @@ function pieChart(canvas, items, legendEl) {
   });
   c.beginPath(); c.arc(cx, cy, r * 0.5, 0, 7); c.fillStyle = '#fff'; c.fill();
   c.fillStyle = '#0f172a'; c.textAlign = 'center'; c.font = 'bold 16px system-ui'; c.fillText(fmt(tot), cx, cy + 5);
-  legendEl.innerHTML = items.map((x, i) => `<span><i style="background:${COLORS[i % COLORS.length]}"></i>${esc(x.label)} ${num(x.value / tot * 100, 0)}% Â· ${fmt(x.value)}</span>`).join('');
+  legendEl.innerHTML = items.map((x, i) => `<span><i style="background:${COLORS[i % COLORS.length]}"></i>${esc(x.label)} ${num(x.value / tot * 100, 0)}% · ${fmt(x.value)}</span>`).join('');
 }
 
 function download(name, text, type) {
