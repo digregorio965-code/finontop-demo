@@ -21,7 +21,7 @@ const Modules = {
       const nw = s.assets.reduce((a, x) => a + (x.kind === 'debt' ? -x.val : x.val), 0);
       const nxt = s.deadlines.map(x => ({ x, ...daysUntil(x) })).sort((a, b) => a.days - b.days).slice(0, 3);
       const tiles = ['spese', 'scadenze', 'prestiti', 'risparmio', 'patrimonio', 'invest'].map(id => `<a class="tile" href="#/${id}"><div class="ic">${Modules[id].icon}</div><h3>${t(id)}</h3><p>${t('d_' + id)}</p></a>`).join('');
-      root.innerHTML = `<h1>${t('welcome')} 👋</h1><p class="sub"></p>
+      root.innerHTML = `<h1>${t('welcome')} 👋</h1><p class="sub tagline">${t('tagline')}</p>
       <div class="card"><label>${t('pick_profile')}</label><select class="f" id="prof">${['casa', 'attivita', 'inv'].map(p => `<option value="${p}" ${s.profile === p ? 'selected' : ''}>${t('p_' + (p === 'inv' ? 'inv' : p))}</option>`).join('')}</select></div>
       <div class="res"><div>${t('this_month')} · ${t('spese')}<b>${fmt(spent)}</b></div><div>${t('net_worth')}<b class="${nw < 0 ? 'bad' : 'ok'}">${fmt(nw)}</b></div></div>
       ${nxt.length ? `<div class="card"><b>${t('due_next')}</b><table>${nxt.map(n => `<tr><td>${esc(n.x.title)}</td><td>${Core.iso(n.date)}</td><td>${dueLabel(n.days)}</td></tr>`).join('')}</table></div>` : ''}
@@ -113,7 +113,7 @@ const Modules = {
 
   risparmio: {
     icon: '🌱', render(root, tab = 'compound') {
-      root.innerHTML = head('risparmio', 'd_risparmio') + tabs([['compound', 'compound'], ['deposit', 'deposit']], tab) + `<div class="card" id="box"></div>`;
+      root.innerHTML = head('risparmio', 'd_risparmio') + tabs([['compound', 'compound'], ['pac', 'pac'], ['deposit', 'deposit']], tab) + `<div class="card" id="box"></div>`;
       root.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => Modules.risparmio.render(root, b.dataset.tab));
       const box = $('box');
       if (tab === 'compound') {
@@ -125,13 +125,27 @@ const Modules = {
           $('res').innerHTML = `<div>${t('final')}<b class="ok">${fmt(c.final)}</b></div><div>${t('paid_in')}<b>${fmt(c.invested)}</b></div><div>${t('gain')}<b class="ok">${fmt(c.gain)}</b></div>`;
           lineChart($('ch'), [c.vals, c.invs], ['#16a34a', '#64748b'], c.vals.map((_, i) => i));
         });
+      } else if (tab === 'pac') {
+        const C = ['#f59e0b', '#0891b2', '#16a34a'];
+        box.innerHTML = slider('M', t('monthly_add'), 300, 10, 3000, 10) + slider('P', t('init'), 0, 0, 100000, 500) + slider('T', t('yield_y'), 5, 1, 15, 0.1) + slider('Y', t('years'), 20, 1, 40, 1) +
+          `<div class="answer" id="ans"></div><div class="res" id="res"></div><canvas id="ch"></canvas><div class="legend"><span><i style="background:${C[0]}"></i>${t('scen_low')}</span><span><i style="background:${C[1]}"></i>${t('scen_mid')}</span><span><i style="background:${C[2]}"></i>${t('scen_high')}</span><span><i style="background:#64748b"></i>${t('paid_in')}</span></div><p class="sub">${t('pac_warn')}</p><p class="noprint"><button onclick="print()">${t('print')}</button></p>`;
+        bind(['M', 'P', 'T', 'Y'], () => {
+          const r = val('T'), rs = [Math.max(r - 2, 0), r, r + 2], cs = rs.map(x => Core.compound(val('P'), val('M'), x, val('Y')));
+          $('ans').textContent = t('ans_pac', { m: fmt(val('M')), y: num(val('Y'), 0), v: fmt(cs[1].invested), f: fmt(cs[1].final) });
+          $('res').innerHTML = cs.map((c, i) => `<div>${t(['scen_low', 'scen_mid', 'scen_high'][i])} · ${num(rs[i], 1)}%<b class="${i === 1 ? 'ok' : ''}">${fmt(c.final)}</b></div>`).join('') + `<div>${t('paid_in')}<b>${fmt(cs[1].invested)}</b></div>`;
+          lineChart($('ch'), [cs[0].vals, cs[1].vals, cs[2].vals, cs[1].invs], [...C, '#64748b'], cs[1].vals.map((_, i) => i));
+        });
       } else {
-        box.innerHTML = slider('P', t('init'), 10000, 0, 500000, 500) + slider('T', t('rate_y'), 3, 0, 8, 0.05) + slider('Y', t('months'), 12, 1, 120, 1) +
-          `<div class="answer" id="ans"></div><div class="res" id="res"></div><p class="sub">${t('no_tax')}</p>`;
-        bind(['P', 'T', 'Y'], () => {
-          const d = Core.deposit(val('P'), val('T'), val('Y'), 0);
-          $('ans').textContent = t('ans_comp', { y: num(val('Y') / 12, 1), f: fmt(d.final), g: fmt(d.gross) });
-          $('res').innerHTML = `<div>${t('gross')}<b>${fmt(d.gross)}</b></div><div>${t('total_end')}<b>${fmt(d.final)}</b></div>`;
+        const C = ['#0891b2', '#f59e0b'];
+        box.innerHTML = slider('P', t('init'), 10000, 0, 500000, 500) + slider('T', t('offer_a') + ' · ' + t('rate_y'), 3, 0, 8, 0.05) + slider('T2', t('offer_b') + ' · ' + t('rate_y'), 3.5, 0, 8, 0.05) + slider('Y', t('months'), 12, 1, 120, 1) +
+          `<div class="answer" id="ans"></div><div class="res" id="res"></div><canvas id="ch"></canvas><div class="legend"><span><i style="background:${C[0]}"></i>${t('offer_a')}</span><span><i style="background:${C[1]}"></i>${t('offer_b')}</span></div><p class="sub">${t('no_tax')} ${t('dep_warn')}</p><p class="noprint"><button onclick="print()">${t('print')}</button></p>`;
+        bind(['P', 'T', 'T2', 'Y'], () => {
+          const d = Core.deposit(val('P'), val('T'), val('Y'), 0), e = Core.deposit(val('P'), val('T2'), val('Y'), 0);
+          $('ans').textContent = t('ans_comp', { y: num(val('Y') / 12, 1), f: fmt(Math.max(d.final, e.final)), g: fmt(Math.max(d.gross, e.gross)) });
+          $('res').innerHTML = `<div>${t('offer_a')} · ${t('gross')}<b>${fmt(d.gross)}</b></div><div>${t('offer_b')} · ${t('gross')}<b>${fmt(e.gross)}</b></div><div>Δ<b class="ok">${fmt(Math.abs(e.gross - d.gross))}</b></div>`;
+          const n = Math.round(val('Y')), xs = [], A = [], B = [];
+          for (let k = 0; k <= n; k++) { xs.push(k); A.push(val('P') + val('P') * val('T') / 1200 * k); B.push(val('P') + val('P') * val('T2') / 1200 * k); }
+          lineChart($('ch'), [A, B], C, xs);
         });
       }
     }
