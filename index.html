@@ -1,0 +1,46 @@
+﻿<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FinOnTop</title><link rel="stylesheet" href="assets/app.css"></head><body>
+<header><a class="logo" href="#/home" id="logo"></a>
+<select id="hl" aria-label="Lingua"><option value="it">Italiano</option><option value="en">English</option><option value="es">Español</option><option value="de">Deutsch</option></select>
+<select id="hc" aria-label="Valuta"></select><button id="ht" class="alt" aria-label="Tema">🌓</button></header>
+<div class="layout"><nav id="nav"></nav><main id="main"></main></div>
+<script src="assets/config.js"></script><script src="assets/i18n.js"></script><script src="assets/i18n_es_de.js"></script><script src="assets/core.js"></script><script src="assets/ui.js"></script><script src="assets/modules.js"></script>
+<script>
+const ORDER = [['grp_base', ['home', 'spese', 'scadenze', 'patrimonio']], ['grp_calc', ['prestiti', 'risparmio']], ['grp_adv', ['invest']]];
+const CURS = ['EUR', 'USD', 'GBP', 'CHF', 'JPY', 'CAD', 'AUD', 'BRL', 'SEK', 'PLN'];
+
+function checkAlerts() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const s = State.get(), today = todayISO();
+  s.deadlines.forEach(x => {
+    const d = daysUntil(x);
+    if (d.days >= 0 && d.days <= x.alert && s.notified[x.id] !== today) {
+      new Notification(APP_NAME + ' · ' + x.title, { body: Core.iso(d.date) + (x.amt ? ' · ' + fmt(x.amt) : '') });
+      s.notified[x.id] = today; State.save();
+    }
+  });
+}
+
+function route() {
+  const id = (location.hash.replace('#/', '') || 'home');
+  const m = Modules[id] || Modules.home, cur = Modules[id] ? id : 'home';
+  $('nav').innerHTML = ORDER.map(([g, ids]) => `<small>${t(g)}</small>` + ids.map(i => `<a href="#/${i}" class="${i === cur ? 'on' : ''}">${Modules[i].icon} ${t(i)}${Modules[i].adv ? '<span class="tag">Pro</span>' : ''}</a>`).join('')).join('');
+  const main = $('main'); m.render(main);
+  if (!main.querySelector('.disc')) main.insertAdjacentHTML('beforeend', `<p class="disc">${t('disc')}</p>`);
+}
+
+$('logo').textContent = APP_NAME;
+$('hc').innerHTML = CURS.map(c => `<option>${c}</option>`).join('');
+document.documentElement.dataset.theme = State.get().theme;
+$('ht').onclick = () => { const s = State.get(); s.theme = s.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = s.theme; State.save(); route(); };
+$('hl').value = State.get().lang; $('hc').value = State.get().cur;
+$('hl').onchange = e => { State.get().lang = e.target.value; document.documentElement.lang = e.target.value; State.save(); route(); };
+$('hc').onchange = e => { State.get().cur = e.target.value; State.save(); route(); };
+document.documentElement.lang = State.get().lang;
+addEventListener('hashchange', route);
+route(); checkAlerts(); setInterval(checkAlerts, 3600000);
+</script></body></html>
+
+
+
