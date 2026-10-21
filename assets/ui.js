@@ -1,6 +1,6 @@
 ﻿const KEY = 'app:v1';
 const State = (() => {
-  const def = { lang: 'it', cur: 'EUR', profile: 'casa', country: 'IT', theme: 'dark', expenses: [], deadlines: [], assets: [], notified: {} };
+  const def = { lang: 'it', cur: 'EUR', profile: 'casa', country: 'IT', theme: 'light', expenses: [], deadlines: [], assets: [], notified: {} };
   let s;
   try { s = Object.assign({}, def, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { s = Object.assign({}, def); }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { alert('Storage error'); } };

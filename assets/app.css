@@ -66,3 +66,22 @@ h1{background:var(--grad);-webkit-background-clip:text;background-clip:text;colo
 input[type=range]{accent-color:#10b981}
 [data-theme=dark]{--bg:#070d1a;--card:#0f1b2e}
 [data-theme=dark] header{background:linear-gradient(90deg,#03070f,#0a2236)}
+/* tema chiaro v3: ciano, bordi netti */
+:root:not([data-theme=dark]){--bg:#e3f6fb;--card:#fff;--line:#0e7490;--res:#d9f3fa;--inp:#fff;--tab:#cdeef7;--brand:#0891b2;--brand2:#0e7490}
+:root:not([data-theme=dark]) body{background:#e3f6fb}
+:root:not([data-theme=dark]) header{background:linear-gradient(90deg,#ffffff,#cdeff8);color:#0b2a3f;border-bottom:3px solid #0891b2;box-shadow:none;border-image:none}
+:root:not([data-theme=dark]) header .logo,:root:not([data-theme=dark]) header .logo span{color:#0b2a3f}
+:root:not([data-theme=dark]) header .logo em{color:#0891b2}
+:root:not([data-theme=dark]) header select,:root:not([data-theme=dark]) header button.alt{background:#fff;color:#0b2a3f;border:1.5px solid #0891b2}
+:root:not([data-theme=dark]) nav{background:#fff;border:2px solid #0891b2;border-radius:16px;margin:16px 0 16px 12px;padding:10px 8px;align-self:flex-start;box-shadow:4px 4px 0 #0891b233}
+:root:not([data-theme=dark]) nav a:hover{background:#d9f3fa}
+:root:not([data-theme=dark]) nav small{color:#0e7490;font-weight:700}
+:root:not([data-theme=dark]) .card,:root:not([data-theme=dark]) a.tile{background:linear-gradient(180deg,#fff 0%,#e6f8fd 100%);border:2px solid #0891b2;border-radius:14px;box-shadow:4px 4px 0 #0891b233}
+:root:not([data-theme=dark]) a.tile{border-top-width:6px}
+:root:not([data-theme=dark]) .card:hover,:root:not([data-theme=dark]) a.tile:hover{box-shadow:6px 6px 0 #0891b24d}
+:root:not([data-theme=dark]) .res div{background:#d9f3fa;border:1.5px solid #0891b2;border-left-width:5px;border-radius:10px}
+:root:not([data-theme=dark]) .answer{background:#e6fbf3;border:2px solid #10b981;border-radius:12px}
+:root:not([data-theme=dark]) input[type=number],:root:not([data-theme=dark]) input[type=text],:root:not([data-theme=dark]) input[type=date],:root:not([data-theme=dark]) input[type=month],:root:not([data-theme=dark]) select.f{border:1.5px solid #0891b2;background:#fff}
+:root:not([data-theme=dark]) table th,:root:not([data-theme=dark]) table td{border-bottom:1px solid #9bd7e6}
+:root:not([data-theme=dark]) h1{background:none;color:#0b4a63}
+@media(max-width:800px){:root:not([data-theme=dark]) nav{margin:8px;box-shadow:none}}
