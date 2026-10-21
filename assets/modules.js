@@ -20,7 +20,7 @@ const Modules = {
       const spent = s.expenses.filter(e => monthOf(e.date) === m).reduce((a, e) => a + e.amt, 0);
       const nw = s.assets.reduce((a, x) => a + (x.kind === 'debt' ? -x.val : x.val), 0);
       const nxt = s.deadlines.map(x => ({ x, ...daysUntil(x) })).sort((a, b) => a.days - b.days).slice(0, 3);
-      const tiles = ['spese', 'scadenze', 'prestiti', 'risparmio', 'patrimonio', 'invest', 'portafoglio'].map(id => `<a class="tile" href="#/${id}"><div class="ic">${Modules[id].icon}</div><h3>${t(id)}</h3><p>${t('d_' + id)}</p></a>`).join('');
+      const tiles = ['spese', 'scadenze', 'prestiti', 'risparmio', 'patrimonio', 'invest', 'portafoglio', 'report'].map(id => `<a class="tile" href="#/${id}"><div class="ic">${Modules[id].icon}</div><h3>${t(id)}</h3><p>${t('d_' + id)}</p></a>`).join('');
       root.innerHTML = `<h1>${t('welcome')} 👋</h1><p class="sub tagline">${t('tagline')}</p>
       <div class="card"><label>${t('pick_profile')}</label><select class="f" id="prof">${['casa', 'attivita', 'inv'].map(p => `<option value="${p}" ${s.profile === p ? 'selected' : ''}>${t('p_' + (p === 'inv' ? 'inv' : p))}</option>`).join('')}</select></div>
       <div class="res"><div>${t('this_month')} · ${t('spese')}<b>${fmt(spent)}</b></div><div>${t('net_worth')}<b class="${nw < 0 ? 'bad' : 'ok'}">${fmt(nw)}</b></div></div>
@@ -172,6 +172,51 @@ const Modules = {
         s.assets.push({ id: uid(), name: $('an').value.trim(), val: v, kind: $('ak').value }); State.save(); $('an').value = ''; $('av').value = ''; draw();
       };
       draw();
+    }
+  },
+
+  report: {
+    icon: '🧾', render(root, tab = 'month', off = 0) {
+      const s = State.get(), L = s.lang;
+      const D = iso => new Date(iso + 'T12:00:00'), add = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+      const range = o => {
+        const n = D(todayISO()); let a, b, bk = [];
+        if (tab === 'week') { a = add(n, -((n.getDay() + 6) % 7) + o * 7); b = add(a, 6); for (let i = 0; i < 7; i++) bk.push([Core.iso(add(a, i)), Core.iso(add(a, i))]); }
+        else if (tab === 'month') { a = new Date(n.getFullYear(), n.getMonth() + o, 1, 12); b = new Date(a.getFullYear(), a.getMonth() + 1, 0, 12); for (let i = 0; i < b.getDate(); i++) bk.push([Core.iso(add(a, i)), Core.iso(add(a, i))]); }
+        else { const y = n.getFullYear() + o; a = new Date(y, 0, 1, 12); b = new Date(y, 11, 31, 12); for (let m = 0; m < 12; m++) bk.push([Core.iso(new Date(y, m, 1, 12)), Core.iso(new Date(y, m + 1, 0, 12))]); }
+        return { from: Core.iso(a), to: Core.iso(b), a, b, bk };
+      };
+      const label = r => tab === 'year' ? String(r.a.getFullYear()) : tab === 'month' ? new Intl.DateTimeFormat(L, { month: 'long', year: 'numeric' }).format(r.a) : new Intl.DateTimeFormat(L, { day: 'numeric', month: 'short' }).format(r.a) + ' – ' + new Intl.DateTimeFormat(L, { day: 'numeric', month: 'short', year: 'numeric' }).format(r.b);
+      const pick = r => s.expenses.filter(e => e.date >= r.from && e.date <= r.to);
+      const sum = l => l.reduce((a, e) => a + e.amt, 0);
+      const cur = range(off), prv = range(off - 1), ex = pick(cur), px = pick(prv);
+      const tot = sum(ex), ptot = sum(px);
+      const series = r => r.bk.map(([f, t2]) => sum(s.expenses.filter(e => e.date >= f && e.date <= t2)));
+      const by = {}; ex.forEach(e => by[e.cat] = (by[e.cat] || 0) + e.amt);
+      const due = [];
+      s.deadlines.forEach(x => {
+        let from = cur.from, g = 0;
+        while (g++ < 40) { const n = Core.nextOccurrence(x.date, x.rep, from); const ni = Core.iso(n); if (ni > cur.to || ni < cur.from) break; due.push({ title: x.title, date: ni }); if (x.rep === 'none') break; from = Core.iso(add(n, 1)); }
+      });
+      due.sort((p, q) => p.date.localeCompare(q.date));
+      const days = tab === 'year' ? 12 : cur.bk.length, avgLabel = t(tab === 'year' ? 'r_avg_m' : 'r_avg_d');
+      const nw = s.assets.reduce((a, x) => a + (x.kind === 'debt' ? -x.val : x.val), 0);
+      const pv = (s.port || []).reduce((a, x) => a + x.q * x.l, 0), pc = (s.port || []).reduce((a, x) => a + x.q * x.c, 0);
+      const delta = ptot > 0 ? (tot - ptot) / ptot * 100 : null;
+      root.innerHTML = head('report', 'd_report') + tabs([['week', 'r_week'], ['month', 'r_month'], ['year', 'r_year']], tab) +
+        `<div class="card"><div class="noprint" style="display:flex;gap:8px;align-items:center;justify-content:space-between"><button id="rp">◀</button><b style="text-transform:capitalize">${esc(label(cur))}</b><button id="rn">▶</button></div>
+        <h2 class="print-only" style="margin:0">${esc(APP_NAME)} · ${esc(label(cur))}</h2>
+        <div class="res"><div>${t('r_spent')}<b>${fmt(tot)}</b></div><div>${t('r_vs')}<b class="${delta == null ? '' : delta > 0 ? 'bad' : 'ok'}">${delta == null ? '—' : (delta > 0 ? '+' : '') + num(delta, 1) + '%'}</b></div><div>${avgLabel}<b>${fmt(tot / days)}</b></div><div>${t('net_worth')}<b class="${nw < 0 ? 'bad' : 'ok'}">${fmt(nw)}</b></div>${(s.port || []).length ? `<div>${t('portafoglio')}<b>${fmt(pv)} <small>(${fmt(pv - pc)})</small></b></div>` : ''}</div>
+        <canvas id="ch"></canvas><div class="legend"><span><i style="background:#0891b2"></i>${esc(label(cur))}</span><span><i style="background:#94a3b8"></i>${esc(label(prv))}</span></div>
+        <b>${t('r_bycat')}</b><canvas id="pie"></canvas><div class="legend" id="lg"></div>
+        <b>${t('r_top')}</b>${ex.length ? `<table>${ex.slice().sort((p, q) => q.amt - p.amt).slice(0, 5).map(e => `<tr><td>${esc(e.date)}</td><td>${esc(e.desc)}</td><td>${t(e.cat)}</td><td>${fmt(e.amt)}</td></tr>`).join('')}</table>` : `<p class="sub">${t('empty')}</p>`}
+        <b>${t('r_due')}</b>${due.length ? `<table>${due.map(d => `<tr><td>${esc(d.date)}</td><td>${esc(d.title)}</td></tr>`).join('')}</table>` : `<p class="sub">${t('empty')}</p>`}
+        <p class="noprint"><button onclick="print()">${t('print')}</button> <button id="rcsv">${t('csv')}</button></p></div>`;
+      root.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; Modules.report.render(root, tab, 0); });
+      $('rp').onclick = () => Modules.report.render(root, tab, off - 1); $('rn').onclick = () => Modules.report.render(root, tab, off + 1);
+      lineChart($('ch'), [series(cur), series(prv)], ['#0891b2', '#94a3b8'], cur.bk.map((_, i) => i + 1));
+      pieChart($('pie'), Object.entries(by).map(([k, v]) => ({ label: t(k), value: v })).sort((a, b) => b.value - a.value), $('lg'));
+      $('rcsv').onclick = () => download('report.csv', toCSV([[t('date'), t('desc'), t('category'), t('amount')]].concat(ex.map(e => [e.date, e.desc, t(e.cat), e.amt]))), 'text/csv');
     }
   },
 

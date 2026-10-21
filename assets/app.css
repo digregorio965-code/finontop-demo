@@ -100,3 +100,5 @@ input[type=range]{accent-color:#10b981}
 @media (max-width:700px){.tick{order:5;flex-basis:100%;max-width:none}}
 
 header .logo{margin-right:0}.tick{margin-right:auto}
+
+.print-only{display:none}@media print{.print-only{display:block}}
