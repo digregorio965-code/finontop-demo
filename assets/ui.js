@@ -23,7 +23,17 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 function slider(id, label, val, min, max, step) {
   return `<label for="${id}">${label}</label><div class="row"><input type="number" id="${id}" value="${val}" min="${min}" step="${step}"><input type="range" id="${id}R" min="${min}" max="${max}" step="${step}" value="${val}" aria-label="${esc(label)}"></div>`;
 }
+function splitCard(card) {
+  if (!card || card.classList.contains('split')) return;
+  const inn = document.createElement('div'), out = document.createElement('div'), aft = document.createElement('div');
+  inn.className = 'in'; out.className = 'out'; aft.className = 'after';
+  [...card.children].forEach(ch => (ch.matches('.answer,.res,canvas,.legend,b') ? out : ch.matches('table,.noprint,p.sub') ? aft : inn).appendChild(ch));
+  card.classList.add('split');
+  const grid = document.createElement('div'); grid.className = 'grid2'; grid.append(inn, out);
+  card.append(grid, aft);
+}
 function bind(ids, render) {
+  splitCard($(ids[0]).closest('.card'));
   ids.forEach(id => {
     const n = $(id), r = $(id + 'R');
     n.addEventListener('input', () => { r.value = n.value; render(); });
@@ -36,6 +46,7 @@ const val = id => { const v = parseFloat($(id).value); return isFinite(v) ? v : 
 const COLORS = ['#0ea5e9', '#16a34a', '#f59e0b', '#8b5cf6', '#ef4444', '#14b8a6', '#ec4899', '#64748b', '#84cc16', '#f97316'];
 
 function setup(canvas, h) {
+  if (innerWidth < 900 && canvas.closest('.out')) h = Math.min(h, 170); else if (canvas.closest('.out')) h = Math.min(h, 250);
   const dpr = window.devicePixelRatio || 1, w = canvas.clientWidth || 600;
   canvas.width = w * dpr; canvas.height = h * dpr; canvas.style.height = h + 'px';
   const c = canvas.getContext('2d'); c.scale(dpr, dpr); c.clearRect(0, 0, w, h);

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><title>Test motore di calcolo</title></head>
+<body><pre id="out">...</pre>
+<script src="assets/core.js"></script>
+<script>
+const R = []; let fail = 0;
+function near(name, got, exp, tol) {
+  const ok = Math.abs(got - exp) <= tol; if (!ok) fail++;
+  R.push((ok ? 'OK   ' : 'FAIL ') + name + ' | calcolato ' + got.toFixed(4) + ' | atteso ' + exp + ' (±' + tol + ')');
+}
+// Mutuo 150.000 al 3,5% in 25 anni: rata standard 750,94
+const a = Core.amortization(150000, 3.5, 25);
+near('Mutuo rata', a.pay, 750.94, 0.01);
+near('Mutuo residuo finale', a.rows[a.rows.length - 1].bal, 0, 0.001);
+near('Mutuo interessi = totale - capitale', a.interest, a.pay * 300 - 150000, 0.001);
+near('Mutuo tasso 0', Core.amortization(120000, 0, 10).pay, 1000, 0.0001);
+// Interesse composto: 5000 + 200/mese al 5% mensile per 20 anni
+near('Interesse composto finale', Core.compound(5000, 200, 5, 20).final, 95770, 5);
+near('Composto senza versamenti 1 anno al 12%', Core.compound(1000, 0, 12, 1).final, 1126.83, 0.01);
+// Deposito: 10.000 al 3% per 12 mesi, tassa 26% -> lordo 300, netto 222
+const d = Core.deposit(10000, 3, 12, 26);
+near('Deposito lordo', d.gross, 300, 0.001); near('Deposito netto', d.net, 222, 0.001);
+// Obbligazioni / BTP
+near('Prezzo bond cedola 4% rend 5% 10a', Core.bondPrice(5, 4, 10), 92.2783, 0.001);
+near('Rendimento bond alla pari = cedola', Core.bondYield(100, 4, 10), 4, 0.0001);
+near('Rendimento bond da prezzo 92,2783', Core.bondYield(92.2783, 4, 10), 5, 0.001);
+near('Bond semestrale pari 6%', Core.bondYield(100, 6, 5, 2), 6, 0.0001);
+near('Bond a sconto: rendimento > cedola', Core.bondYield(95, 3, 5) > 3 ? 1 : 0, 1, 0);
+near('Netto alla pari 12,5%: 4*(0,875)', Core.bondNet(100, 4, 10, 1, 12.5), 3.5, 0.001);
+near('Netto < lordo (prezzo 95)', Core.bondNet(95, 3, 5, 1, 12.5) < Core.bondYield(95, 3, 5) ? 1 : 0, 1, 0);
+// Opzioni Black-Scholes: S=100 K=100 r=5% vol=20% T=1
+const c = Core.blackScholes(100, 100, 5, 20, 1, 'call'), p = Core.blackScholes(100, 100, 5, 20, 1, 'put');
+near('Call BS', c.price, 10.4506, 0.001); near('Put BS', p.price, 5.5735, 0.001);
+near('Parità call-put C-P = S-K*e^-rT', c.price - p.price, 100 - 100 * Math.exp(-0.05), 0.0005);
+near('Delta call', c.delta, 0.6368, 0.001); near('Delta put', p.delta, -0.3632, 0.001);
+near('Gamma', c.gamma, 0.01876, 0.0001); near('Vega (per 1%)', c.vega, 0.3752, 0.001);
+near('Theta call/giorno', c.theta, -0.01757, 0.0005);
+// Size di posizione: 10.000 €, rischio 1%, entrata 50, stop 48 -> 50 unità, valore 2500
+const s = Core.positionSize(10000, 1, 50, 48, 56);
+near('Size unità', s.units, 50, 0.0001); near('Size valore', s.value, 2500, 0.001); near('Rischio/rendimento', s.rr, 3, 0.0001);
+R.push(Core.positionSize(10000, 1, 50, 50) === null ? 'OK   Size stop=entry rifiutato' : (fail++, 'FAIL Size stop=entry'));
+// Certificato: 1000, cedola 5%, 3 anni, barriera 70%
+near('Certificato sopra barriera', Core.certificate(1000, 5, 3, 70, -20).total, 1150, 0.001);
+near('Certificato sotto barriera -40%', Core.certificate(1000, 5, 3, 70, -40).total, 750, 0.001);
+// Scadenze
+near('Prossima occorrenza mensile 31 -> 28 feb', Core.nextOccurrence('2026-01-31', 'month', '2026-02-10').getDate(), 28, 0);
+near('Scadenza annuale', Core.nextOccurrence('2024-03-15', 'year', '2026-10-21').getFullYear(), 2027, 0);
+near('Scadenza singola passata resta', Core.nextOccurrence('2026-01-01', 'none', '2026-10-21').getFullYear(), 2026, 0);
+near('ICS contiene VEVENT', Core.ics([{ id: 'a', title: 'IMU', amt: '100', date: '2026-12-16', rep: 'year', alert: 7 }], 'App').includes('RRULE:FREQ=YEARLY') ? 1 : 0, 1, 0);
+document.getElementById('out').textContent = R.join('\n') + '\n\nRISULTATO: ' + (fail ? fail + ' FALLITI' : 'TUTTI OK (' + R.length + ')');
+</script></body></html>
