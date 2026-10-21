@@ -1,14 +1,14 @@
 ﻿<!doctype html>
 <html lang="it"><head><meta charset="utf-8"><title>smoke</title></head><body>
 <div id="main"></div><pre id="out">...</pre>
-<script src="assets/config.js"></script><script src="assets/i18n.js"></script><script src="assets/i18n_es_de.js"></script><script src="assets/i18n_more.js"></script><script src="assets/core.js"></script><script src="assets/ui.js"></script><script src="assets/modules.js"></script>
+<script src="assets/config.js"></script><script src="assets/i18n.js"></script><script src="assets/i18n_es_de.js"></script><script src="assets/i18n_more.js"></script><script src="assets/i18n_more2.js"></script><script src="assets/core.js"></script><script src="assets/ui.js"></script><script src="assets/modules.js"></script>
 <script>
 const log = []; window.onerror = (m, s, l) => log.push('ERRORE ' + m + ' @' + l);
 function checkAlerts() {}
 const main = document.getElementById('main'), s = State.get();
 function click(id) { document.getElementById(id).click(); }
 function set(id, v) { const e = document.getElementById(id); e.value = v; e.dispatchEvent(new Event('input')); }
-for (const lang of ['it', 'en', 'es', 'de', 'pl', 'sv', 'nl', 'fi']) {
+for (const lang of ['it', 'en', 'es', 'de', 'pl', 'sv', 'nl', 'fi', 'fr', 'pt', 'da', 'cs', 'ro', 'el', 'hu']) {
   s.lang = lang;
   for (const id of Object.keys(Modules)) {
     try {
@@ -29,7 +29,7 @@ for (const lang of ['it', 'en', 'es', 'de', 'pl', 'sv', 'nl', 'fi']) {
     } catch (e) { log.push('ECCEZIONE ' + id + '/' + lang + ': ' + e.message); }
   }
 }
-for (const l of ['en','es','de','pl','sv','nl','fi']) { const miss = Object.keys(I18N.it).filter(k => !(k in I18N[l])); log.push('chiavi mancanti ' + l + ': ' + miss.join(',')); }
+for (const l of ['en','es','de','pl','sv','nl','fi','fr','pt','da','cs','ro','el','hu']) { const miss = Object.keys(I18N.it).filter(k => !(k in I18N[l])); log.push('chiavi mancanti ' + l + ': ' + miss.join(',')); }
 log.push('spese salvate: ' + s.expenses.length + ', scadenze: ' + s.deadlines.length + ', patrimonio: ' + s.assets.length);
 Modules.spese.render(main);
 log.push('XSS escape: ' + (s.expenses[0].desc.includes('<b>') && !main.innerHTML.includes('<b>x</b>') && main.innerHTML.includes('&lt;b&gt;') ? 'OK' : 'FAIL'));
