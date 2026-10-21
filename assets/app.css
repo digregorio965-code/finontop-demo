@@ -91,3 +91,12 @@ input[type=range]{accent-color:#10b981}
 .grid2 .out .res{margin-top:0}
 .after{margin-top:12px}
 @media(max-width:900px){.grid2{display:block}.grid2 .out{position:sticky;top:64px;z-index:4;background:var(--card);border-bottom:2px solid var(--brand);margin:-8px -4px 12px;padding:8px 4px 6px}.grid2 .out .res{display:none}.grid2 .out .answer{font-size:15px;margin:6px 0}}
+.tick{flex:1 1 200px;max-width:420px;overflow:hidden;white-space:nowrap;font-weight:600;font-size:14px;color:#67e8f9;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.tick span{display:inline-block;padding-left:100%;animation:tickmove 16s linear infinite}
+.tick:hover span{animation-play-state:paused}
+:root:not([data-theme=dark]) .tick{color:#0e7490}
+@keyframes tickmove{to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion:reduce){.tick span{animation:none;padding-left:0}.tick{white-space:normal}}
+@media (max-width:700px){.tick{order:5;flex-basis:100%;max-width:none}}
+
+header .logo{margin-right:0}.tick{margin-right:auto}
