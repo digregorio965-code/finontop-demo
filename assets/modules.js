@@ -95,7 +95,8 @@ const Modules = {
       const presets = { l_mutuo: [200000, 20, 3.5, 25], l_auto: [25000, 5000, 6, 5], l_ristr: [40000, 0, 5, 8], l_arredo: [15000, 0, 7, 5], l_altro: [10000, 0, 6, 5] };
       root.innerHTML = head('prestiti', 'd_prestiti') + `<div class="card"><label>${t('loan_type')}</label><select class="f" id="lt">${Object.keys(presets).map(k => `<option value="${k}">${t(k)}</option>`).join('')}</select>
         ${slider('P', t('price'), 200000, 0, 1000000, 500)}${slider('D', t('down'), 40000, 0, 500000, 500)}${slider('T', t('rate_y'), 3.5, 0, 15, 0.05)}${slider('Y', t('years'), 25, 1, 40, 1)}
-        <div class="answer" id="ans"></div><div class="res" id="res"></div><canvas id="ch"></canvas><div class="legend"><span><i style="background:#0ea5e9"></i>${t('residual')}</span><span><i style="background:#f59e0b"></i>${t('interest')}</span></div>
+                <div class="xbox"><b>💡 ${t('x_title')}</b>${slider('X', t('x_extra'), 100, 0, 1000, 10)}</div>
+                <div class="answer" id="ans"></div><div class="res" id="res"></div><canvas id="ch"></canvas><div class="legend"><span><i style="background:#0ea5e9"></i>${t('residual')}</span><span><i style="background:#f59e0b"></i>${t('interest')}</span><span><i style="background:#16a34a"></i>${t('x_leg')}</span></div>
         <p class="noprint"><button onclick="print()">${t('print')}</button></p><table id="tb"></table></div>`;
       const set = k => { const [p, dpc, r, y] = presets[k]; $('P').value = $('PR').value = p; $('D').value = $('DR').value = Math.round(p * dpc / 100); $('T').value = $('TR').value = r; $('Y').value = $('YR').value = y; };
       $('lt').onchange = e => { set(e.target.value); draw(); };
@@ -103,11 +104,16 @@ const Modules = {
         const fin = Math.max(val('P') - val('D'), 0), a = Core.amortization(fin, val('T'), val('Y'));
         $('ans').textContent = t('ans_loan', { p: fmt(a.pay), y: num(val('Y'), 1), i: fmt(a.interest) });
         $('res').innerHTML = `<div>${t('financed')}<b>${fmt(fin)}</b></div><div>${t('monthly')}<b>${fmt(a.pay)}</b></div><div>${t('int_tot')}<b class="bad">${fmt(a.interest)}</b></div><div>${t('repay')}<b>${fmt(a.total)}</b></div>`;
-        const yr = a.rows.filter(r => r.k % 12 === 0);
-        lineChart($('ch'), [[fin].concat(yr.map(r => r.bal)), [0].concat(yr.map(r => r.cum))], ['#0ea5e9', '#f59e0b'], [0].concat(yr.map(r => r.k / 12)));
+        const x = val('X'), pp = Core.prepay(fin, val('T'), val('Y'), x);
+        if (x > 0 && fin > 0) {
+          $('ans').textContent = t('x_ans', { x: fmt(x), m: pp.savedMonths, i: fmt(pp.savedInterest) });
+          $('res').innerHTML += `<div>${t('x_saved_int')}<b class="ok">${fmt(pp.savedInterest)}</b></div><div>${t('x_saved_time')}<b class="ok">${pp.savedMonths} ${t('x_mo')}</b></div><div>${t('x_new_end')}<b>${pp.months} ${t('x_mo')}</b></div><div>${t('x_new_pay')}<b>${fmt(a.pay + x)}</b></div>`;
+        }
+        const yr = a.rows.filter(r => r.k % 12 === 0), xb = k => (pp.rows[k - 1] ? pp.rows[k - 1].bal : 0);
+        lineChart($('ch'), [[fin].concat(yr.map(r => r.bal)), [0].concat(yr.map(r => r.cum))].concat(x > 0 ? [[fin].concat(yr.map(r => xb(r.k)))] : []), ['#0ea5e9', '#f59e0b', '#16a34a'], [0].concat(yr.map(r => r.k / 12)));
         $('tb').innerHTML = `<tr><th>${t('n_rate')}</th><th>${t('capital')}</th><th>${t('interest')}</th><th>${t('residual')}</th></tr>` + [a.rows[0]].concat(yr.filter(r => r.k !== 1)).filter(Boolean).map(r => `<tr><td>${r.k}</td><td>${fmt(r.cap)}</td><td>${fmt(r.int)}</td><td>${fmt(r.bal)}</td></tr>`).join('');
       };
-      bind(['P', 'D', 'T', 'Y'], draw);
+      bind(['P', 'D', 'T', 'Y', 'X'], draw);
     }
   },
 

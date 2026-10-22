@@ -12,6 +12,17 @@ const Core = (() => {
     return { pay, rows, total: pay * m, interest: pay * m - P };
   }
 
+  function prepay(P, annualRate, years, extra) {
+    const base = amortization(P, annualRate, years), i = annualRate / 1200;
+    let bal = P, cum = 0, k = 0; const rows = [];
+    while (bal > 0.005 && k < 1200) {
+      k++; const int = bal * i, cap = Math.min(base.pay + extra - int, bal);
+      if (cap <= 0) break;
+      bal -= cap; cum += int; rows.push({ k, bal: Math.max(bal, 0), cum });
+    }
+    return { months: k, interest: cum, rows, savedInterest: base.interest - cum, savedMonths: base.rows.length - k };
+  }
+
   function compound(P, monthly, annualRate, years) {
     const i = annualRate / 1200; let v = P, inv = P;
     const vals = [P], invs = [P];
@@ -121,6 +132,6 @@ const Core = (() => {
     return lines.join('\r\n');
   }
 
-  return { amortization, compound, deposit, bondPrice, bondYield, bondNet, blackScholes, positionSize, certificate, nextOccurrence, iso, ics };
+  return { amortization, prepay, compound, deposit, bondPrice, bondYield, bondNet, blackScholes, positionSize, certificate, nextOccurrence, iso, ics };
 })();
 if (typeof module !== 'undefined') module.exports = Core;
