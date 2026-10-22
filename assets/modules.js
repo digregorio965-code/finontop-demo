@@ -304,19 +304,20 @@ const Modules = {
         });
       } else if (tab === 'option') {
         box.innerHTML = `<div class="tabs"><button id="ot" class="on" data-ty="call">${t('call')}</button><button id="op" data-ty="put">${t('put')}</button></div>` +
-          slider('S', t('spot'), 100, 1, 1000, 0.5) + slider('K', t('strike'), 100, 1, 1000, 0.5) + slider('R', t('rate'), 5, 0, 15, 0.1) + slider('V', t('vol'), 20, 1, 150, 0.5) + slider('T', t('tte'), 1, 0.02, 5, 0.02) +
-          `<div class="answer" id="ans"></div><div class="res" id="res"></div><b>${t('payoff')}</b><canvas id="ch"></canvas>`;
+          slider('S', t('spot'), 100, 1, 1000, 0.5) + slider('K', t('strike'), 100, 1, 1000, 0.5) + slider('R', t('rate'), 5, 0, 15, 0.1) + slider('V', t('vol'), 20, 1, 150, 0.5) +           slider('D', t('dte'), 30, 1, 365, 1) +
+                    `<div class="answer" id="ans"></div><div class="res" id="res"></div><b>${t('payoff')}</b><canvas id="ch"></canvas><p class="sub">${t('o_note')}</p>`;
         let ty = 'call';
         const draw = () => {
-          const o = Core.blackScholes(val('S'), val('K'), val('R'), val('V'), val('T'), ty);
-          $('ans').textContent = `${t('opt_price')}: ${fmt(o.price)}`;
-          $('res').innerHTML = `<div>${t('opt_price')}<b>${fmt(o.price)}</b></div><div>Delta<b>${num(o.delta, 3)}</b></div><div>Gamma<b>${num(o.gamma, 4)}</b></div><div>Vega<b>${num(o.vega, 3)}</b></div><div>Theta/day<b>${num(o.theta, 3)}</b></div>`;
+                    const D = Math.max(val('D'), 1), o = Core.blackScholes(val('S'), val('K'), val('R'), val('V'), D / 365, ty);
+                    const pr = o.price / val('K'), ann = (Math.pow(1 + pr, 365 / D) - 1) * 100, be = ty === 'call' ? val('K') + o.price : val('K') - o.price, mv = (be / val('S') - 1) * 100;
+                    $('ans').textContent = `${t('opt_price')}: ${fmt(o.price)} · ${t('o_be')}: ${num(be, 2)}`;
+                    $('res').innerHTML = `<div>${t('opt_price')}<b>${fmt(o.price)}</b></div><div>${t('o_be')}<b>${num(be, 2)}</b></div><div>${t('o_mv')}<b>${mv > 0 ? '+' : ''}${num(mv, 2)}%</b></div><div>${t('o_ret_p')} (${num(D, 0)}g)<b>${num(pr * 100, 2)}%</b></div><div>${t('o_ret_a')}<b>${num(ann, 1)}%</b></div><div>Delta<b>${num(o.delta, 3)}</b></div><div>Gamma<b>${num(o.gamma, 4)}</b></div><div>Vega<b>${num(o.vega, 3)}</b></div><div>Theta/day<b>${num(o.theta, 3)}</b></div>`;
           const K = val('K'), S0 = val('S'), xs = [], ys = [], lo = Math.min(K, S0) * 0.6, hi = Math.max(K, S0) * 1.4;
           for (let i = 0; i <= 80; i++) { const x = lo + i * (hi - lo) / 80; xs.push(x); ys.push((ty === 'call' ? Math.max(x - K, 0) : Math.max(K - x, 0)) - o.price); }
           payoffChart($('ch'), xs, ys, { mark: S0, markLabel: t('spot') + ' ' + num(S0, 2), xLabel: v => num(v, 0) });
         };
         box.querySelectorAll('[data-ty]').forEach(b => b.onclick = () => { ty = b.dataset.ty; box.querySelectorAll('[data-ty]').forEach(x => x.classList.toggle('on', x === b)); draw(); });
-        bind(['S', 'K', 'R', 'V', 'T'], draw);
+        bind(['S', 'K', 'R', 'V', 'D'], draw);
       } else {
         box.innerHTML = slider('N', t('nominal'), 1000, 100, 100000, 100) + slider('C', t('coupon_cert'), 5, 0, 20, 0.1) + slider('Y', t('years'), 3, 1, 10, 1) + slider('B', t('barrier'), 70, 20, 100, 1) + slider('F', t('perf'), -20, -80, 50, 1) +
           `<div class="answer" id="ans"></div><div class="res" id="res"></div><b>${t('scen')}</b><canvas id="ch"></canvas><p class="sub">${t('cert_note')}</p>`;

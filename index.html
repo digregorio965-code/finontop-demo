@@ -5,7 +5,7 @@
 <select id="hl" aria-label="Lingua"><option value="it">Italiano</option><option value="en">English</option><option value="es">Español</option><option value="de">Deutsch</option><option value="pl">Polski</option><option value="sv">Svenska</option><option value="nl">Nederlands</option><option value="fi">Suomi</option><option value="fr">Français</option><option value="pt">Português</option><option value="da">Dansk</option><option value="cs">Čeština</option><option value="ro">Română</option><option value="el">Ελληνικά</option><option value="hu">Magyar</option></select>
 <select id="hc" aria-label="Valuta"></select><button id="ht" class="alt" aria-label="Tema">🌓</button></header>
 <div class="layout"><nav id="nav"></nav><main id="main"></main></div>
-<script src="assets/config.js"></script><script src="assets/i18n.js"></script><script src="assets/i18n_es_de.js"></script><script src="assets/i18n_more.js"></script><script src="assets/i18n_more2.js"></script><script src="assets/i18n_pac.js"></script><script src="assets/i18n_port.js"></script><script src="assets/i18n_rep.js"></script><script src="assets/core.js"></script><script src="assets/ui.js"></script><script src="assets/modules.js"></script>
+<script src="assets/config.js"></script><script src="assets/i18n.js"></script><script src="assets/i18n_es_de.js"></script><script src="assets/i18n_more.js"></script><script src="assets/i18n_more2.js"></script><script src="assets/i18n_pac.js"></script><script src="assets/i18n_port.js"></script><script src="assets/i18n_rep.js"></script><script src="assets/i18n_opt.js"></script><script src="assets/core.js"></script><script src="assets/ui.js"></script><script src="assets/modules.js"></script>
 <script>
 const ORDER = [['grp_base', ['home', 'spese', 'scadenze', 'patrimonio', 'report']], ['grp_calc', ['prestiti', 'risparmio']], ['grp_adv', ['invest', 'portafoglio']]];
 const CURS = ['EUR', 'USD', 'GBP', 'CHF', 'JPY', 'CAD', 'AUD', 'BRL', 'SEK', 'PLN'];
@@ -22,13 +22,58 @@ function checkAlerts() {
   });
 }
 
+const SAVABLE = ['prestiti', 'risparmio', 'invest'];
+let pendingScen = null, barObs = null;
+
+function applyScen(sc) {
+  const main = $('main');
+  if (sc.tab) { const b = main.querySelector('[data-tab="' + sc.tab + '"]'); if (b && !b.classList.contains('on')) b.click(); }
+  const els = [...main.querySelectorAll('select[id],input[type=number][id]')];
+  [...els.filter(e => e.tagName === 'SELECT'), ...els.filter(e => e.tagName !== 'SELECT')].forEach(e => {
+    if (!(e.id in sc.vals)) return;
+    e.value = sc.vals[e.id]; e.dispatchEvent(new Event(e.tagName === 'SELECT' ? 'change' : 'input'));
+  });
+  if (sc.ty) { const b = main.querySelector('[data-ty="' + sc.ty + '"]'); if (b) b.click(); }
+}
+
+function saveScen(mod) {
+  const main = $('main'), name = $('scn').value.trim().slice(0, 60);
+  if (!name) { $('scn').focus(); return; }
+  const vals = {};
+  main.querySelectorAll('select[id],input[type=number][id]').forEach(e => { vals[e.id] = e.value; });
+  const tb = main.querySelector('[data-tab].on'), ty = main.querySelector('[data-ty].on');
+  const s = State.get(); (s.scen = s.scen || []).push({ id: uid(), name, mod, tab: tb ? tb.dataset.tab : '', ty: ty ? ty.dataset.ty : '', vals });
+  State.save(); $('scm').textContent = t('sc_saved'); $('scn').value = ''; renderNav(mod);
+}
+
+function renderNav(cur) {
+  const sc = State.get().scen || [];
+  $('nav').innerHTML = ORDER.map(([g, ids]) => `<small>${t(g)}</small>` + ids.map(i => `<a href="#/${i}" class="${i === cur ? 'on' : ''}">${Modules[i].icon} ${t(i)}${Modules[i].adv ? '<span class="tag">Pro</span>' : ''}</a>`).join('')).join('') +
+    `<small>💾 ${t('sc_title')}</small>` + (sc.length ? sc.map(x => `<a href="#/${x.mod}" data-sc="${x.id}" class="sc">${esc(x.name)} <button class="alt scx" data-del="${x.id}" aria-label="${esc(t('sc_del'))}">✕</button></a>`).join('') : `<span class="scemp">${t('sc_empty')}</span>`);
+  $('nav').querySelectorAll('[data-sc]').forEach(a => a.onclick = e => {
+    e.preventDefault();
+    if (e.target.dataset.del) { const s = State.get(); s.scen = s.scen.filter(x => x.id !== e.target.dataset.del); State.save(); renderNav(cur); return; }
+    pendingScen = sc.find(x => x.id === a.dataset.sc);
+    if (location.hash === '#/' + pendingScen.mod) route(); else location.hash = '#/' + pendingScen.mod;
+  });
+}
+
 function route() {
   const id = (location.hash.replace('#/', '') || 'home');
   const m = Modules[id] || Modules.home, cur = Modules[id] ? id : 'home';
-  $('nav').innerHTML = ORDER.map(([g, ids]) => `<small>${t(g)}</small>` + ids.map(i => `<a href="#/${i}" class="${i === cur ? 'on' : ''}">${Modules[i].icon} ${t(i)}${Modules[i].adv ? '<span class="tag">Pro</span>' : ''}</a>`).join('')).join('');
+  renderNav(cur);
   $('tk').textContent = t('tagline');
   const main = $('main'); m.render(main);
+  const addBar = () => {
+    if (!SAVABLE.includes(cur) || $('scn')) return;
+    main.insertAdjacentHTML('beforeend', `<div class="card noprint" id="scbar"><b>💾 ${t('sc_save')}</b><div class="row"><input type="text" id="scn" maxlength="60" placeholder="${esc(t('sc_name'))}"><button id="scb">${t('sc_save')}</button></div><p class="sub" id="scm"></p></div>`);
+    $('scb').onclick = () => saveScen(cur);
+  };
+  if (barObs) barObs.disconnect();
+  barObs = new MutationObserver(addBar); barObs.observe(main, { childList: true });
+  addBar();
   if (!main.querySelector('.disc')) main.insertAdjacentHTML('beforeend', `<p class="disc">${t('disc')}</p>`);
+  if (pendingScen && pendingScen.mod === cur) { const sc = pendingScen; pendingScen = null; applyScen(sc); }
 }
 
 $('logo').innerHTML = '<svg class="lg" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lgg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#06b6d4"/><stop offset="1" stop-color="#10b981"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#lgg)"/><path d="M7 22l6-7 5 4 7-9M20 10h5v5" stroke="#041421" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>' + APP_NAME.replace(/^(Fin)(On)(Top)$/, '$1<em>$2</em>$3') + '</span>';

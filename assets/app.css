@@ -102,3 +102,5 @@ input[type=range]{accent-color:#10b981}
 header .logo{margin-right:0}.tick{margin-right:auto}
 
 .print-only{display:none}@media print{.print-only{display:block}}
+
+.sc{display:flex;justify-content:space-between;align-items:center;gap:6px;font-weight:500!important;font-size:14px}.scx{padding:0 6px!important;min-width:0!important;line-height:1.4;font-size:12px;box-shadow:none!important}.scemp{display:block;padding:4px 14px;color:var(--mut);font-size:13px}@media(max-width:800px){.scemp{display:none}}
