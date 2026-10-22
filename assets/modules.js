@@ -17,7 +17,7 @@ const addMonthsISO = (iso, i) => {
   const [y, m, d] = iso.split('-').map(Number), dim = new Date(y, m + i, 0).getDate(), dt = new Date(y, m - 1 + i, Math.min(d, dim));
   return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
 };
-const VCATS = ['v_fuel', 'v_ins', 'v_tax', 'v_maint', 'v_tires', 'v_toll', 'v_fine', 'v_vother'];
+const VCATS = ['v_ins', 'v_tax', 'v_maint', 'v_tires', 'v_toll', 'v_fine', 'v_vother'];
 const Veh = {
   list: () => Array.isArray(State.get().veh) ? State.get().veh : [],
   costs: () => Array.isArray(State.get().vcost) ? State.get().vcost : [],
