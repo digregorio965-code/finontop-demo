@@ -1,93 +1,146 @@
 <!doctype html>
 <html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FinOnTop</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Cdefs%3E%3ClinearGradient id=%27g%27 x1=%270%27 y1=%271%27 x2=%271%27 y2=%270%27%3E%3Cstop offset=%270%27 stop-color=%27%2306b6d4%27/%3E%3Cstop offset=%271%27 stop-color=%27%2310b981%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2732%27 height=%2732%27 rx=%279%27 fill=%27url(%23g)%27/%3E%3Cpath d=%27M7 22l6-7 5 4 7-9M20 10h5v5%27 stroke=%27%23041421%27 stroke-width=%273%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E"><meta name="theme-color" content="#050b16"><link rel="stylesheet" href="assets/app.css?v=20261022b"></head><body>
-<header><a class="logo" href="#/home" id="logo"></a><div class="tick" aria-label="slogan"><span id="tk"></span></div>
-<select id="hl" aria-label="Lingua"><option value="it">Italiano</option><option value="en">English</option><option value="es">Español</option><option value="de">Deutsch</option><option value="pl">Polski</option><option value="sv">Svenska</option><option value="nl">Nederlands</option><option value="fi">Suomi</option><option value="fr">Français</option><option value="pt">Português</option><option value="da">Dansk</option><option value="cs">Čeština</option><option value="ro">Română</option><option value="el">Ελληνικά</option><option value="hu">Magyar</option></select>
-<select id="hc" aria-label="Valuta"></select><button id="ht" class="alt" aria-label="Tema">🌓</button></header>
-<div class="layout"><nav id="nav"></nav><main id="main"></main></div>
-<p style="text-align:center;font-size:12px;margin:16px"><a href="legal.html">Privacy &amp; Termini / Terms</a></p>
-<script src="assets/config.js?v=20261022b"></script><script src="assets/i18n.js?v=20261022b"></script><script src="assets/i18n_es_de.js?v=20261022b"></script><script src="assets/i18n_more.js?v=20261022b"></script><script src="assets/i18n_more2.js?v=20261022b"></script><script src="assets/i18n_pac.js?v=20261022b"></script><script src="assets/i18n_port.js?v=20261022b"></script><script src="assets/i18n_rep.js?v=20261022b"></script><script src="assets/i18n_opt.js?v=20261022b"></script><script src="assets/i18n_veh.js?v=20261022b"></script><script src="assets/core.js?v=20261022b"></script><script src="assets/ui.js?v=20261022b"></script><script src="assets/modules.js?v=20261022b"></script><script src="assets/cloud.js?v=20261022b"></script>
+<title>FinOnTop · Spese, mutuo, investimenti. Tutto sotto controllo.</title>
+<meta name="description" content="FinOnTop: l'app per famiglie, piccole attività e investitori. Spese, scadenze, mutuo, veicoli, risparmio e investimenti con simulazioni e grafici. 15 lingue.">
+<meta name="theme-color" content="#050b16">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Cdefs%3E%3ClinearGradient id=%27g%27 x1=%270%27 y1=%271%27 x2=%271%27 y2=%270%27%3E%3Cstop offset=%270%27 stop-color=%27%2306b6d4%27/%3E%3Cstop offset=%271%27 stop-color=%27%2310b981%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2732%27 height=%2732%27 rx=%279%27 fill=%27url(%23g)%27/%3E%3Cpath d=%27M7 22l6-7 5 4 7-9M20 10h5v5%27 stroke=%27%23041421%27 stroke-width=%273%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box;margin:0}html{scroll-behavior:smooth}
+:root{--bg:#050b16;--card:#0d1829;--line:#1c2d47;--ink:#e8f0fb;--mut:#93a8c6;--c1:#06b6d4;--c2:#10b981;--grad:linear-gradient(135deg,#06b6d4,#10b981)}
+body{font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.35;z-index:-1;animation:fl 14s ease-in-out infinite alternate}
+.o1{width:480px;height:480px;background:#06b6d4;top:-120px;left:-120px}.o2{width:420px;height:420px;background:#10b981;top:35%;right:-140px;animation-delay:-5s}.o3{width:380px;height:380px;background:#2563eb;bottom:-100px;left:25%;animation-delay:-9s}
+@keyframes fl{to{transform:translate(60px,50px) scale(1.15)}}
+.w{max-width:1120px;margin:0 auto;padding:0 22px}
+nav{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);background:rgba(5,11,22,.7);border-bottom:1px solid var(--line)}
+nav .w{display:flex;align-items:center;gap:16px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:21px;letter-spacing:-.5px}.logo em{font-style:normal;color:var(--c1)}
+.sp{flex:1}
+nav a.l{color:var(--mut);font-size:14px}nav a.l:hover{color:#fff}
+select{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 8px}
+.btn{display:inline-block;padding:12px 24px;border-radius:12px;font-weight:700;background:var(--grad);color:#041421;border:0;cursor:pointer;font-size:16px;transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(6,182,212,.35)}
+.btn.g{background:transparent;color:var(--ink);border:1px solid var(--line)}.btn.g:hover{box-shadow:none;border-color:var(--c1)}
+.hero{padding:80px 0 40px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.pill{display:inline-block;padding:6px 14px;border:1px solid var(--line);border-radius:99px;color:var(--c1);font-size:13px;background:rgba(6,182,212,.08);margin-bottom:18px}
+h1{font-size:clamp(34px,5.4vw,60px);line-height:1.08;letter-spacing:-1.5px;font-weight:800}
+h1 span,h2 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.s{color:var(--mut);font-size:19px;margin:20px 0 28px;max-width:540px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.trust{display:flex;gap:22px;margin-top:30px;color:var(--mut);font-size:14px;flex-wrap:wrap}.trust b{color:var(--ink)}
+.dash{background:linear-gradient(160deg,#0f1c31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 30px 80px rgba(0,0,0,.5);transform:perspective(1000px) rotateY(-7deg) rotateX(3deg);animation:bob 6s ease-in-out infinite alternate}
+@keyframes bob{to{transform:perspective(1000px) rotateY(-3deg) rotateX(1deg) translateY(-8px)}}
+.dash small{color:var(--mut)}.dash .big{font-size:34px;font-weight:800;margin:2px 0 8px}
+.dash svg{width:100%;height:150px}
+.path{stroke-dasharray:700;stroke-dashoffset:700;animation:dr 2.4s .4s forwards ease-out}@keyframes dr{to{stroke-dashoffset:0}}
+.chips{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}.chip{background:#12233a;border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:13px}.chip b{display:block;font-size:16px}
+section{padding:70px 0}
+h2{font-size:clamp(28px,4vw,42px);letter-spacing:-1px;text-align:center;font-weight:800}
+.sub{text-align:center;color:var(--mut);max-width:620px;margin:12px auto 40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;transition:transform .25s,border-color .25s}
+.card:hover{transform:translateY(-6px);border-color:var(--c1)}
+.card .i{font-size:32px;margin-bottom:10px}.card h3{margin-bottom:6px}.card p{color:var(--mut);font-size:15px}
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:30px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px;align-items:center}
+.calc label{display:flex;justify-content:space-between;color:var(--mut);font-size:14px;margin-top:16px}.calc label b{color:var(--ink)}
+input[type=range]{width:100%;accent-color:#06b6d4}
+.out{text-align:center}.out .n{font-size:clamp(36px,6vw,56px);font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.bars{display:flex;align-items:flex-end;gap:3px;height:120px;margin-top:14px}.bars i{flex:1;background:var(--grad);border-radius:3px 3px 0 0;min-height:2px;transition:height .3s}
+.bars i.d{background:#294468}
+.price{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;align-items:stretch}
+.pl{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;display:flex;flex-direction:column;position:relative}
+.pl.hot{border:2px solid var(--c1);box-shadow:0 0 60px rgba(6,182,212,.2)}
+.pl .tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--grad);color:#041421;font-weight:800;font-size:12px;padding:4px 14px;border-radius:99px;white-space:nowrap}
+.pl h3{font-size:20px}.pl .pr{font-size:42px;font-weight:800;margin:10px 0 2px}.pl .pr small{font-size:15px;color:var(--mut);font-weight:400}
+.pl ul{list-style:none;padding:0;margin:16px 0 22px;flex:1}.pl li{padding:5px 0 5px 26px;position:relative;color:var(--mut);font-size:15px}.pl li:before{content:"✓";position:absolute;left:0;color:var(--c2);font-weight:800}
+.pl .btn{text-align:center}.note{text-align:center;color:var(--mut);font-size:13px;margin-top:18px}
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:10px}summary{cursor:pointer;font-weight:600}details p{color:var(--mut);margin-top:10px}
+.fin{text-align:center;background:var(--card);border:1px solid var(--line);border-radius:26px;padding:56px 24px;background-image:radial-gradient(circle at 50% 0,rgba(6,182,212,.25),transparent 60%)}
+footer{padding:36px 0;color:var(--mut);font-size:13px;text-align:center;border-top:1px solid var(--line);margin-top:40px}footer a{margin:0 8px;text-decoration:underline}
+.rv{opacity:0;transform:translateY(28px);transition:all .7s}.rv.on{opacity:1;transform:none}
+@media(max-width:820px){.hero,.calc{grid-template-columns:1fr}.dash{transform:none;animation:none}nav a.l{display:none}.hero{padding-top:40px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.path{stroke-dashoffset:0}.rv{opacity:1;transform:none}}
+</style></head><body>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+<nav><div class="w"><a class="logo" href="#"><svg width="32" height="32" viewBox="0 0 32 32"><defs><linearGradient id="a" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#06b6d4"/><stop offset="1" stop-color="#10b981"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#a)"/><path d="M7 22l6-7 5 4 7-9M20 10h5v5" stroke="#041421" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Fin<em>On</em>Top</span></a>
+<div class="sp"></div><a class="l" href="#f" data-i="n_f"></a><a class="l" href="#try" data-i="n_t"></a><a class="l" href="#p" data-i="n_p"></a>
+<select id="lg" aria-label="Language"><option value="it">Italiano</option><option value="en">English</option><option value="es">Español</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="pt">Português</option></select>
+<a class="btn" href="app/" style="padding:8px 18px;font-size:14px" data-i="open"></a></div></nav>
+
+<main>
+<div class="w hero"><div>
+<span class="pill" data-i="pill"></span>
+<h1 data-h="h1"></h1><p class="s" data-i="sub"></p>
+<div class="cta"><a class="btn" href="app/" data-i="cta1"></a><a class="btn g" href="#try" data-i="cta2"></a></div>
+<div class="trust"><span>🌍 <b>15</b> <span data-i="t1"></span></span><span>🔒 <b data-i="t2"></b></span><span>📱 <b data-i="t3"></b></span></div></div>
+<div class="dash"><small data-i="d1"></small><div class="big" id="dn">€ 0</div>
+<svg viewBox="0 0 400 150" preserveAspectRatio="none"><defs><linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#06b6d4" stop-opacity=".35"/><stop offset="1" stop-color="#06b6d4" stop-opacity="0"/></linearGradient></defs>
+<path d="M0 130 C50 120 70 100 110 105 S170 70 210 75 S290 40 330 45 S380 15 400 10 V150 H0Z" fill="url(#fg)"/>
+<path class="path" d="M0 130 C50 120 70 100 110 105 S170 70 210 75 S290 40 330 45 S380 15 400 10" fill="none" stroke="url(#a)" stroke-width="4" stroke-linecap="round"/></svg>
+<div class="chips"><div class="chip"><small data-i="c1"></small><b>−€ 312</b></div><div class="chip"><small data-i="c2"></small><b>€ 1.240</b></div><div class="chip"><small data-i="c3"></small><b>12 ✓</b></div></div></div></div>
+
+<section id="f"><div class="w"><h2 class="rv" data-h="fh"></h2><p class="sub rv" data-i="fs"></p>
+<div class="grid">
+<div class="card rv"><div class="i">💶</div><h3 data-i="f1"></h3><p data-i="f1d"></p></div>
+<div class="card rv"><div class="i">🏠</div><h3 data-i="f2"></h3><p data-i="f2d"></p></div>
+<div class="card rv"><div class="i">🚗</div><h3 data-i="f3"></h3><p data-i="f3d"></p></div>
+<div class="card rv"><div class="i">🐷</div><h3 data-i="f4"></h3><p data-i="f4d"></p></div>
+<div class="card rv"><div class="i">📈</div><h3 data-i="f5"></h3><p data-i="f5d"></p></div>
+<div class="card rv"><div class="i">🧾</div><h3 data-i="f6"></h3><p data-i="f6d"></p></div></div></div></section>
+
+<section id="try"><div class="w"><h2 class="rv" data-h="th"></h2><p class="sub rv" data-i="ts"></p>
+<div class="calc rv"><div>
+<label><span data-i="k1"></span><b id="v1"></b></label><input type="range" id="r1" min="0" max="2000" step="50" value="300">
+<label><span data-i="k2"></span><b id="v2"></b></label><input type="range" id="r2" min="1" max="40" value="20">
+<label><span data-i="k3"></span><b id="v3"></b></label><input type="range" id="r3" min="0" max="10" step="0.5" value="5"></div>
+<div class="out"><small style="color:var(--mut)" data-i="k4"></small><div class="n" id="res"></div><small style="color:var(--mut)" id="det"></small><div class="bars" id="bars"></div></div></div>
+<p class="note" data-i="tn"></p></div></section>
+
+<section id="p"><div class="w"><h2 class="rv" data-h="ph"></h2><p class="sub rv" data-i="ps"></p>
+<div class="price">
+<div class="pl rv"><h3>Free</h3><div class="pr">€0</div><ul><li data-i="a1"></li><li data-i="a2"></li><li data-i="a3"></li></ul><a class="btn g" href="app/" data-i="cta1"></a></div>
+<div class="pl hot rv"><span class="tag" data-i="fnd"></span><h3>Base</h3><div class="pr">€9,90<small data-i="mo"></small></div><ul><li data-i="b1"></li><li data-i="b2"></li><li data-i="b3"></li><li data-i="b4"></li></ul><a class="btn" href="app/" data-i="soon"></a></div>
+<div class="pl rv"><h3>Pro</h3><div class="pr">€19,90<small data-i="mo"></small></div><ul><li data-i="c1x"></li><li data-i="c2x"></li><li data-i="c3x"></li></ul><a class="btn g" href="app/" data-i="soon"></a></div></div>
+<p class="note" data-i="pn"></p></div></section>
+
+<section><div class="w" style="max-width:760px"><h2 class="rv" data-i="qh"></h2><br>
+<details class="rv"><summary data-i="q1"></summary><p data-i="a_1"></p></details>
+<details class="rv"><summary data-i="q2"></summary><p data-i="a_2"></p></details>
+<details class="rv"><summary data-i="q3"></summary><p data-i="a_3"></p></details>
+<details class="rv"><summary data-i="q4"></summary><p data-i="a_4"></p></details></div></section>
+
+<div class="w"><div class="fin rv"><h2 data-h="eh"></h2><p class="sub" data-i="es"></p><a class="btn" href="app/" data-i="cta1"></a></div></div>
+</main>
+<footer><div class="w"><a href="legal.html">Privacy &amp; Terms</a> · © 2026 FinOnTop<p style="margin-top:8px;max-width:640px;margin-inline:auto" data-i="disc"></p></div></footer>
+
 <script>
-const ORDER = [['grp_base', ['home', 'spese', 'scadenze', 'veicoli', 'patrimonio', 'report']], ['grp_calc', ['prestiti', 'risparmio']], ['grp_adv', ['invest', 'portafoglio']]];
-const CURS = ['EUR', 'USD', 'GBP', 'CHF', 'JPY', 'CAD', 'AUD', 'BRL', 'SEK', 'PLN'];
-
-function checkAlerts() {
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
-  const s = State.get(), today = todayISO();
-  s.deadlines.forEach(x => {
-    const d = daysUntil(x);
-    if (d.days >= 0 && d.days <= x.alert && s.notified[x.id] !== today) {
-      new Notification(APP_NAME + ' · ' + x.title, { body: Core.iso(d.date) + (x.amt ? ' · ' + fmt(x.amt) : '') });
-      s.notified[x.id] = today; State.save();
-    }
-  });
-}
-
-const SAVABLE = ['prestiti', 'risparmio', 'invest'];
-let pendingScen = null, barObs = null;
-
-function applyScen(sc) {
-  const main = $('main');
-  if (sc.tab) { const b = main.querySelector('[data-tab="' + sc.tab + '"]'); if (b && !b.classList.contains('on')) b.click(); }
-  const els = [...main.querySelectorAll('select[id],input[type=number][id]')];
-  [...els.filter(e => e.tagName === 'SELECT'), ...els.filter(e => e.tagName !== 'SELECT')].forEach(e => {
-    if (!(e.id in sc.vals)) return;
-    e.value = sc.vals[e.id]; e.dispatchEvent(new Event(e.tagName === 'SELECT' ? 'change' : 'input'));
-  });
-  if (sc.ty) { const b = main.querySelector('[data-ty="' + sc.ty + '"]'); if (b) b.click(); }
-}
-
-function saveScen(mod) {
-  const main = $('main'), name = $('scn').value.trim().slice(0, 60);
-  if (!name) { $('scn').focus(); return; }
-  const vals = {};
-  main.querySelectorAll('select[id],input[type=number][id]').forEach(e => { vals[e.id] = e.value; });
-  const tb = main.querySelector('[data-tab].on'), ty = main.querySelector('[data-ty].on');
-  const s = State.get(); (s.scen = s.scen || []).push({ id: uid(), name, mod, tab: tb ? tb.dataset.tab : '', ty: ty ? ty.dataset.ty : '', vals });
-  State.save(); $('scm').textContent = t('sc_saved'); $('scn').value = ''; renderNav(mod);
-}
-
-function renderNav(cur) {
-  const sc = State.get().scen || [];
-  $('nav').innerHTML = ORDER.map(([g, ids]) => `<small>${t(g)}</small>` + ids.map(i => `<a href="#/${i}" class="${i === cur ? 'on' : ''}">${Modules[i].icon} ${t(i)}${Modules[i].adv ? '<span class="tag">Pro</span>' : ''}</a>`).join('')).join('') +
-    `<small>💾 ${t('sc_title')}</small>` + (sc.length ? sc.map(x => `<a href="#/${x.mod}" data-sc="${x.id}" class="sc">${esc(x.name)} <button class="alt scx" data-del="${x.id}" aria-label="${esc(t('sc_del'))}">✕</button></a>`).join('') : `<span class="scemp">${t('sc_empty')}</span>`);
-  $('nav').querySelectorAll('[data-sc]').forEach(a => a.onclick = e => {
-    e.preventDefault();
-    if (e.target.dataset.del) { const s = State.get(); s.scen = s.scen.filter(x => x.id !== e.target.dataset.del); State.save(); renderNav(cur); return; }
-    pendingScen = sc.find(x => x.id === a.dataset.sc);
-    if (location.hash === '#/' + pendingScen.mod) route(); else location.hash = '#/' + pendingScen.mod;
-  });
-}
-
-function route() {
-  const id = (location.hash.replace('#/', '') || 'home');
-  const m = Modules[id] || Modules.home, cur = Modules[id] ? id : 'home';
-  renderNav(cur); Cloud.ui();
-  $('tk').textContent = t('tagline');
-  const main = $('main'); m.render(main);
-  const addBar = () => {
-    if (!SAVABLE.includes(cur) || $('scn')) return;
-    main.insertAdjacentHTML('beforeend', `<div class="card noprint" id="scbar"><b>💾 ${t('sc_save')}</b><div class="row"><input type="text" id="scn" maxlength="60" placeholder="${esc(t('sc_name'))}"><button id="scb">${t('sc_save')}</button></div><p class="sub" id="scm"></p></div>`);
-    $('scb').onclick = () => saveScen(cur);
-  };
-  if (barObs) barObs.disconnect();
-  barObs = new MutationObserver(addBar); barObs.observe(main, { childList: true });
-  addBar();
-  if (!main.querySelector('.disc')) main.insertAdjacentHTML('beforeend', `<p class="disc">${t('disc')}</p>`);
-  if (pendingScen && pendingScen.mod === cur) { const sc = pendingScen; pendingScen = null; applyScen(sc); }
-}
-
-$('logo').innerHTML = '<svg class="lg" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lgg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#06b6d4"/><stop offset="1" stop-color="#10b981"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#lgg)"/><path d="M7 22l6-7 5 4 7-9M20 10h5v5" stroke="#041421" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>' + APP_NAME.replace(/^(Fin)(On)(Top)$/, '$1<em>$2</em>$3') + '</span>';
-$('hc').innerHTML = CURS.map(c => `<option>${c}</option>`).join('');
-document.documentElement.dataset.theme = State.get().theme;
-$('ht').onclick = () => { const s = State.get(); s.theme = s.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = s.theme; State.save(); route(); };
-$('hl').value = State.get().lang; $('hc').value = State.get().cur;
-$('hl').onchange = e => { State.get().lang = e.target.value; document.documentElement.lang = e.target.value; State.save(); route(); };
-$('hc').onchange = e => { State.get().cur = e.target.value; State.save(); route(); };
-document.documentElement.lang = State.get().lang;
-addEventListener('hashchange', route);
-Cloud.init(); route(); checkAlerts(); setInterval(checkAlerts, 3600000);
+const D={
+it:{open:'Apri l\'app',n_f:'Funzioni',n_t:'Prova',n_p:'Prezzi',pill:'✨ Nuovo · Ora con gestione veicoli',h1:'Le tue finanze,<br><span>sempre sopra</span> il tuo mese.',sub:'Spese, scadenze, mutuo, veicoli, risparmio e investimenti in un\'unica app. Cursori semplici, grafici chiari, report da stampare. Per famiglie, piccole attività e investitori.',cta1:'Prova gratis',cta2:'Simula subito',t1:'lingue',t2:'Nessuna carta richiesta',t3:'Funziona su telefono e PC',d1:'Patrimonio netto',c1:'Spese mese',c2:'Risparmio',c3:'Scadenze',fh:'Tutto quello che serve,<br><span>niente di complicato</span>',fs:'Pensata per essere chiara anche a chi non ama i numeri.',f1:'Spese e scadenze',f1d:'Registra le spese, ricevi un avviso prima di bollette, rate e tasse.',f2:'Mutuo e prestiti',f2d:'Piano di ammortamento, TAN/TAEG, estinzione anticipata: scopri quanto risparmi.',f3:'Veicoli',f3d:'Noleggio, leasing e auto di proprietà: rate, costi e quanto spendi davvero ogni mese.',f4:'Risparmio',f4d:'Interesse composto e obiettivi: guarda crescere il tuo capitale anno dopo anno.',f5:'Investimenti',f5d:'Size, percentuali, opzioni, BTP e certificati per chi fa trading.',f6:'Report',f6d:'Grafici e confronti tra periodi. Stampa o esporta in CSV.',th:'Prova <span>subito</span>',ts:'Muovi i cursori e guarda come cresce un risparmio nel tempo.',k1:'Versamento mensile',k2:'Anni',k3:'Rendimento annuo',k4:'Capitale finale',tn:'Simulazione indicativa: non è una promessa di rendimento.',ph:'Prezzi <span>semplici</span>',ps:'Parti gratis. Passa a un piano quando ti serve di più.',a1:'Spese e scadenze',a2:'Patrimonio e report base',a3:'Simulazioni di base',fnd:'Offerta fondatori',mo:'/mese',b1:'Tutti gli strumenti per la famiglia',b2:'Mutuo, veicoli, risparmio',b3:'Account e sincronizzazione cloud',b4:'Anche investimenti per i primi 150',soon:'Disponibile a breve',c1x:'Tutto il piano Base',c2x:'Investimenti, opzioni e portafoglio',c3x:'Per chi fa trading',pn:'Per i primi 150 utenti anche acquisto una tantum a €39,90. Prezzi di lancio, pagamenti in arrivo.',qh:'Domande frequenti',q1:'I miei dati sono al sicuro?',a_1:'I dati restano nel tuo browser. Se crei un account vengono sincronizzati su server europei (Francoforte).',q2:'Serve scaricare qualcosa?',a_2:'No. Funziona dal browser e puoi aggiungerla alla schermata Home come un\'app.',q3:'Posso usarla all\'estero?',a_3:'Sì: 15 lingue e 10 valute.',q4:'È una consulenza finanziaria?',a_4:'No. Sono strumenti di simulazione a scopo informativo.',eh:'Metti le tue finanze <span>sopra</span>',es:'Gratis, senza carta. Ci metti un minuto.',disc:'Strumenti informativi: non costituiscono consulenza finanziaria, fiscale o di investimento.'},
+en:{open:'Open app',n_f:'Features',n_t:'Try it',n_p:'Pricing',pill:'✨ New · Now with vehicle tracking',h1:'Your finances,<br><span>always on top</span> of the month.',sub:'Expenses, deadlines, mortgage, vehicles, savings and investing in one app. Simple sliders, clear charts, printable reports. For families, small businesses and investors.',cta1:'Try it free',cta2:'Simulate now',t1:'languages',t2:'No card required',t3:'Works on phone and PC',d1:'Net worth',c1:'Month spend',c2:'Savings',c3:'Deadlines',fh:'Everything you need,<br><span>nothing complicated</span>',fs:'Built to be clear even for people who dislike numbers.',f1:'Expenses & deadlines',f1d:'Track spending and get alerts before bills, instalments and taxes.',f2:'Mortgage & loans',f2d:'Amortization, APR, early repayment: see how much you save.',f3:'Vehicles',f3d:'Rental, leasing and owned cars: instalments, costs and what you really spend monthly.',f4:'Savings',f4d:'Compound interest and goals: watch your capital grow year after year.',f5:'Investing',f5d:'Position size, percentages, options, bonds and certificates for traders.',f6:'Reports',f6d:'Charts and period comparisons. Print or export to CSV.',th:'Try it <span>now</span>',ts:'Move the sliders and see how savings grow over time.',k1:'Monthly deposit',k2:'Years',k3:'Yearly return',k4:'Final capital',tn:'Indicative simulation: not a promise of returns.',ph:'<span>Simple</span> pricing',ps:'Start free. Upgrade when you need more.',a1:'Expenses and deadlines',a2:'Net worth and basic reports',a3:'Basic simulations',fnd:'Founders offer',mo:'/mo',b1:'All family tools',b2:'Mortgage, vehicles, savings',b3:'Account and cloud sync',b4:'Investing tools too for the first 150',soon:'Coming soon',c1x:'Everything in Base',c2x:'Investing, options and portfolio',c3x:'For traders',pn:'First 150 users can also buy once for €39.90. Launch prices, payments coming soon.',qh:'FAQ',q1:'Is my data safe?',a_1:'Data stays in your browser. If you create an account it syncs to EU servers (Frankfurt).',q2:'Do I need to download anything?',a_2:'No. It runs in the browser and you can add it to your Home screen like an app.',q3:'Can I use it abroad?',a_3:'Yes: 15 languages and 10 currencies.',q4:'Is this financial advice?',a_4:'No. These are simulation tools for information only.',eh:'Put your finances <span>on top</span>',es:'Free, no card. Takes a minute.',disc:'Informational tools: not financial, tax or investment advice.'},
+es:{open:'Abrir app',n_f:'Funciones',n_t:'Probar',n_p:'Precios',pill:'✨ Nuevo · Ahora con vehículos',h1:'Tus finanzas,<br><span>siempre al día</span>.',sub:'Gastos, vencimientos, hipoteca, vehículos, ahorro e inversión en una sola app. Controles simples, gráficos claros e informes imprimibles.',cta1:'Probar gratis',cta2:'Simular ahora',t1:'idiomas',t2:'Sin tarjeta',t3:'En móvil y PC',d1:'Patrimonio neto',c1:'Gasto mes',c2:'Ahorro',c3:'Vencimientos',fh:'Todo lo necesario,<br><span>nada complicado</span>',fs:'Clara incluso para quien no ama los números.',f1:'Gastos y vencimientos',f1d:'Registra gastos y recibe avisos antes de recibos y cuotas.',f2:'Hipoteca y préstamos',f2d:'Amortización, TAE y amortización anticipada.',f3:'Vehículos',f3d:'Renting, leasing y coches propios: cuotas y costes reales.',f4:'Ahorro',f4d:'Interés compuesto y objetivos.',f5:'Inversión',f5d:'Tamaño de posición, opciones, bonos y certificados.',f6:'Informes',f6d:'Gráficos y comparativas. Imprime o exporta CSV.',th:'Pruébalo <span>ya</span>',ts:'Mueve los controles y mira crecer tu ahorro.',k1:'Aportación mensual',k2:'Años',k3:'Rentabilidad anual',k4:'Capital final',tn:'Simulación orientativa: no garantiza rentabilidad.',ph:'Precios <span>simples</span>',ps:'Empieza gratis.',a1:'Gastos y vencimientos',a2:'Patrimonio e informes básicos',a3:'Simulaciones básicas',fnd:'Oferta fundadores',mo:'/mes',b1:'Todas las herramientas familiares',b2:'Hipoteca, vehículos, ahorro',b3:'Cuenta y sincronización',b4:'Inversión incluida para los primeros 150',soon:'Próximamente',c1x:'Todo lo de Base',c2x:'Inversión, opciones y cartera',c3x:'Para traders',pn:'Los primeros 150 también pueden pagar una vez 39,90 €. Precios de lanzamiento.',qh:'Preguntas frecuentes',q1:'¿Están seguros mis datos?',a_1:'Se guardan en tu navegador; con cuenta se sincronizan en servidores de la UE.',q2:'¿Hay que descargar algo?',a_2:'No, funciona en el navegador.',q3:'¿Puedo usarla en el extranjero?',a_3:'Sí: 15 idiomas y 10 divisas.',q4:'¿Es asesoramiento financiero?',a_4:'No, son herramientas informativas.',eh:'Pon tus finanzas <span>al día</span>',es:'Gratis, sin tarjeta.',disc:'Herramientas informativas: no son asesoramiento financiero, fiscal o de inversión.'},
+de:{open:'App öffnen',n_f:'Funktionen',n_t:'Testen',n_p:'Preise',pill:'✨ Neu · Jetzt mit Fahrzeugen',h1:'Deine Finanzen,<br><span>immer im Griff</span>.',sub:'Ausgaben, Fristen, Hypothek, Fahrzeuge, Sparen und Investieren in einer App. Einfache Regler, klare Diagramme, druckbare Berichte.',cta1:'Gratis testen',cta2:'Jetzt simulieren',t1:'Sprachen',t2:'Keine Karte nötig',t3:'Handy und PC',d1:'Nettovermögen',c1:'Ausgaben Monat',c2:'Sparen',c3:'Fristen',fh:'Alles Nötige,<br><span>nichts Kompliziertes</span>',fs:'Auch für alle, die Zahlen nicht mögen.',f1:'Ausgaben & Fristen',f1d:'Ausgaben erfassen und rechtzeitig erinnert werden.',f2:'Hypothek & Kredite',f2d:'Tilgungsplan, Effektivzins, Sondertilgung.',f3:'Fahrzeuge',f3d:'Miete, Leasing und eigene Autos: Raten und echte Kosten.',f4:'Sparen',f4d:'Zinseszins und Sparziele.',f5:'Investieren',f5d:'Positionsgröße, Optionen, Anleihen, Zertifikate.',f6:'Berichte',f6d:'Diagramme und Vergleiche. Drucken oder CSV.',th:'Jetzt <span>ausprobieren</span>',ts:'Regler bewegen und Sparwachstum sehen.',k1:'Monatliche Einzahlung',k2:'Jahre',k3:'Jahresrendite',k4:'Endkapital',tn:'Unverbindliche Simulation, keine Renditezusage.',ph:'<span>Einfache</span> Preise',ps:'Kostenlos starten.',a1:'Ausgaben und Fristen',a2:'Vermögen und Basisberichte',a3:'Basis-Simulationen',fnd:'Gründerangebot',mo:'/Monat',b1:'Alle Familien-Tools',b2:'Hypothek, Fahrzeuge, Sparen',b3:'Konto und Cloud-Sync',b4:'Investment-Tools für die ersten 150',soon:'Demnächst',c1x:'Alles aus Base',c2x:'Investieren, Optionen, Portfolio',c3x:'Für Trader',pn:'Die ersten 150 können auch einmalig 39,90 € zahlen. Einführungspreise.',qh:'FAQ',q1:'Sind meine Daten sicher?',a_1:'Daten bleiben im Browser; mit Konto Sync auf EU-Servern.',q2:'Muss ich etwas installieren?',a_2:'Nein, läuft im Browser.',q3:'Auch im Ausland nutzbar?',a_3:'Ja: 15 Sprachen, 10 Währungen.',q4:'Ist das Anlageberatung?',a_4:'Nein, nur Informations-Tools.',eh:'Bring deine Finanzen <span>in Ordnung</span>',es:'Gratis, ohne Karte.',disc:'Informations-Tools: keine Finanz-, Steuer- oder Anlageberatung.'},
+fr:{open:'Ouvrir l\'app',n_f:'Fonctions',n_t:'Essayer',n_p:'Tarifs',pill:'✨ Nouveau · Désormais avec véhicules',h1:'Vos finances,<br><span>toujours maîtrisées</span>.',sub:'Dépenses, échéances, crédit, véhicules, épargne et investissement dans une seule app. Curseurs simples, graphiques clairs, rapports imprimables.',cta1:'Essai gratuit',cta2:'Simuler',t1:'langues',t2:'Sans carte',t3:'Mobile et PC',d1:'Patrimoine net',c1:'Dépenses mois',c2:'Épargne',c3:'Échéances',fh:'Tout le nécessaire,<br><span>rien de compliqué</span>',fs:'Claire même pour ceux qui n\'aiment pas les chiffres.',f1:'Dépenses et échéances',f1d:'Suivez vos dépenses et soyez alerté avant les échéances.',f2:'Crédit immobilier',f2d:'Amortissement, TAEG, remboursement anticipé.',f3:'Véhicules',f3d:'Location, leasing et voitures: mensualités et coûts réels.',f4:'Épargne',f4d:'Intérêts composés et objectifs.',f5:'Investissement',f5d:'Taille de position, options, obligations, certificats.',f6:'Rapports',f6d:'Graphiques et comparaisons. Imprimer ou CSV.',th:'Essayez <span>maintenant</span>',ts:'Bougez les curseurs et voyez l\'épargne croître.',k1:'Versement mensuel',k2:'Années',k3:'Rendement annuel',k4:'Capital final',tn:'Simulation indicative, sans promesse de rendement.',ph:'Tarifs <span>simples</span>',ps:'Commencez gratuitement.',a1:'Dépenses et échéances',a2:'Patrimoine et rapports de base',a3:'Simulations de base',fnd:'Offre fondateurs',mo:'/mois',b1:'Tous les outils famille',b2:'Crédit, véhicules, épargne',b3:'Compte et synchronisation',b4:'Investissement inclus pour les 150 premiers',soon:'Bientôt',c1x:'Tout Base',c2x:'Investissement, options, portefeuille',c3x:'Pour traders',pn:'Les 150 premiers peuvent aussi payer une fois 39,90 €. Tarifs de lancement.',qh:'FAQ',q1:'Mes données sont-elles sûres ?',a_1:'Elles restent dans votre navigateur; avec compte, synchro sur serveurs UE.',q2:'Faut-il installer quelque chose ?',a_2:'Non, dans le navigateur.',q3:'Utilisable à l\'étranger ?',a_3:'Oui: 15 langues, 10 devises.',q4:'Est-ce un conseil financier ?',a_4:'Non, outils informatifs.',eh:'Gardez vos finances <span>au top</span>',es:'Gratuit, sans carte.',disc:'Outils informatifs: pas de conseil financier, fiscal ou d\'investissement.'},
+pt:{open:'Abrir app',n_f:'Funções',n_t:'Testar',n_p:'Preços',pill:'✨ Novo · Agora com veículos',h1:'Suas finanças,<br><span>sempre em dia</span>.',sub:'Despesas, prazos, financiamento, veículos, poupança e investimentos num só app. Controles simples, gráficos claros e relatórios para imprimir.',cta1:'Testar grátis',cta2:'Simular agora',t1:'idiomas',t2:'Sem cartão',t3:'Celular e PC',d1:'Patrimônio líquido',c1:'Gasto do mês',c2:'Poupança',c3:'Prazos',fh:'Tudo o que precisa,<br><span>nada complicado</span>',fs:'Clara até para quem não gosta de números.',f1:'Despesas e prazos',f1d:'Registre gastos e receba avisos antes dos vencimentos.',f2:'Financiamento',f2d:'Amortização, CET e amortização antecipada.',f3:'Veículos',f3d:'Aluguel, leasing e carros próprios: parcelas e custos reais.',f4:'Poupança',f4d:'Juros compostos e metas.',f5:'Investimentos',f5d:'Tamanho de posição, opções, títulos e certificados.',f6:'Relatórios',f6d:'Gráficos e comparações. Imprima ou CSV.',th:'Experimente <span>agora</span>',ts:'Mova os controles e veja a poupança crescer.',k1:'Aporte mensal',k2:'Anos',k3:'Rendimento anual',k4:'Capital final',tn:'Simulação indicativa, sem promessa de retorno.',ph:'Preços <span>simples</span>',ps:'Comece grátis.',a1:'Despesas e prazos',a2:'Patrimônio e relatórios básicos',a3:'Simulações básicas',fnd:'Oferta fundadores',mo:'/mês',b1:'Todas as ferramentas da família',b2:'Financiamento, veículos, poupança',b3:'Conta e sincronização',b4:'Investimentos para os primeiros 150',soon:'Em breve',c1x:'Tudo do Base',c2x:'Investimentos, opções e carteira',c3x:'Para traders',pn:'Os primeiros 150 também podem pagar uma vez €39,90. Preços de lançamento.',qh:'Perguntas frequentes',q1:'Meus dados estão seguros?',a_1:'Ficam no navegador; com conta, sincronizam em servidores da UE.',q2:'Preciso baixar algo?',a_2:'Não, funciona no navegador.',q3:'Posso usar no exterior?',a_3:'Sim: 15 idiomas e 10 moedas.',q4:'Isto é consultoria financeira?',a_4:'Não, são ferramentas informativas.',eh:'Coloque suas finanças <span>em dia</span>',es:'Grátis, sem cartão.',disc:'Ferramentas informativas: não são consultoria financeira, fiscal ou de investimento.'}};
+const $=id=>document.getElementById(id);
+let lang='it';
+try{const s=JSON.parse(localStorage.getItem('app:v1')||'{}');if(D[s.lang])lang=s.lang;else if(D[(navigator.language||'').slice(0,2)])lang=navigator.language.slice(0,2)}catch(e){}
+const fmt=n=>'€ '+Math.round(n).toLocaleString(lang);
+function setLang(l){lang=l;$('lg').value=l;document.documentElement.lang=l;const d=D[l];
+document.querySelectorAll('[data-i]').forEach(e=>{const v=d[e.dataset.i];if(v!=null)e.textContent=v});
+document.querySelectorAll('[data-h]').forEach(e=>e.innerHTML=d[e.dataset.h]);
+try{const s=JSON.parse(localStorage.getItem('app:v1')||'{}');s.lang=l;localStorage.setItem('app:v1',JSON.stringify(s))}catch(e){}
+calc()}
+$('lg').onchange=e=>setLang(e.target.value);
+function calc(){const m=+$('r1').value,y=+$('r2').value,r=+$('r3').value/100/12;let c=0,tot=0;const b=[];
+for(let i=1;i<=y*12;i++){c=(c+m)*(1+r);tot+=m;if(i%12===0)b.push([c,tot])}
+$('v1').textContent=fmt(m);$('v2').textContent=y;$('v3').textContent=(r*1200).toFixed(1)+'%';
+$('res').textContent=fmt(c);$('det').textContent=fmt(tot)+' → +'+fmt(c-tot);
+const mx=Math.max(...b.map(x=>x[0]),1);$('bars').innerHTML=b.map(x=>`<i style="height:${x[0]/mx*100}%"></i>`).join('')}
+['r1','r2','r3'].forEach(i=>$(i).oninput=calc);
+let n=0;const tgt=48250,iv=setInterval(()=>{n+=tgt/45;if(n>=tgt){n=tgt;clearInterval(iv)}$('dn').textContent=fmt(n)},30);
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll('.rv').forEach(e=>io.observe(e));
+setLang(lang);
+const h=location.hash;if(/access_token|type=recovery|error_description/.test(h)||/^#\//.test(h))location.replace('app/'+h);
 </script></body></html>
-
-
-
