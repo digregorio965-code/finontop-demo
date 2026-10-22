@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FinOnTop · Privacy & Termini</title>
+<style>body{font:16px/1.6 system-ui,sans-serif;max-width:760px;margin:0 auto;padding:24px;color:#1b2540;background:#f6f8fc}h1,h2{color:#0b3b6f}a{color:#0b6fd0}.b{margin:16px 0}button{padding:6px 14px;margin-right:6px;border:1px solid #0b6fd0;background:#fff;border-radius:6px;cursor:pointer}button.on{background:#0b6fd0;color:#fff}.w{background:#fff3cd;padding:10px 14px;border-radius:8px}</style></head><body>
+<p><a href="index.html">← FinOnTop</a></p>
+<div class="b"><button id="bi" class="on" onclick="L('it')">Italiano</button><button id="be" onclick="L('en')">English</button></div>
+<div class="w" id="wn"></div>
+<div id="c"></div>
+<script>
+const D={
+it:{wn:'BOZZA provvisoria: i campi tra [parentesi] vanno compilati e il testo va sostituito/rivisto prima della vendita.',h:`
+<h1>Privacy Policy</h1>
+<p>Titolare del trattamento: [NOME E COGNOME / RAGIONE SOCIALE], [INDIRIZZO], email: [EMAIL DI CONTATTO].</p>
+<h2>Dati trattati</h2>
+<p><b>Dati inseriti nell'app</b> (spese, scadenze, patrimonio, veicoli, scenari): restano nel tuo browser (localStorage). Se crei un account, vengono copiati sul cloud per la sincronizzazione tra dispositivi.</p>
+<p><b>Dati di account</b>: indirizzo email e password (conservata in forma cifrata dal fornitore).</p>
+<p>Non usiamo cookie di profilazione né pubblicità. Usiamo solo archiviazione tecnica del browser necessaria al funzionamento (preferenze, lingua, sessione di accesso).</p>
+<h2>Finalità e base giuridica</h2>
+<p>Erogare il servizio e l'account (esecuzione del contratto, art. 6.1.b GDPR); sicurezza e assistenza (legittimo interesse, art. 6.1.f).</p>
+<h2>Fornitori</h2>
+<p>Supabase (database e autenticazione, server UE a Francoforte); GitHub Pages (hosting del sito). Per i pagamenti, quando attivati: [FORNITORE PAGAMENTI]. Possibili trasferimenti extra-UE coperti da clausole contrattuali standard.</p>
+<h2>Conservazione</h2>
+<p>I dati dell'account restano finché l'account è attivo; alla cancellazione vengono rimossi.</p>
+<h2>I tuoi diritti</h2>
+<p>Accesso, rettifica, cancellazione, limitazione, portabilità, opposizione, reclamo al Garante Privacy (garanteprivacy.it). Scrivi a [EMAIL DI CONTATTO].</p>
+<h1>Termini d'uso</h1>
+<p>FinOnTop offre strumenti di calcolo e simulazione a scopo <b>informativo</b>. I risultati sono stime basate sui dati inseriti e <b>non costituiscono consulenza finanziaria, fiscale, legale o di investimento</b>. Gli investimenti comportano rischi, anche di perdita del capitale. L'utente è responsabile delle proprie decisioni.</p>
+<p>Il servizio è fornito "così com'è", senza garanzie di assenza di errori o interruzioni. Nei limiti di legge, il titolare non risponde di danni derivanti dall'uso dei risultati.</p>
+<p>Abbonamenti e prezzi: [DA DEFINIRE alla attivazione dei pagamenti, incluso diritto di recesso del consumatore].</p>
+<p>Legge applicabile: italiana. Ultimo aggiornamento: [DATA].</p>`},
+en:{wn:'DRAFT: fields in [brackets] must be filled in and the text reviewed before selling.',h:`
+<h1>Privacy Policy</h1>
+<p>Data controller: [NAME / COMPANY], [ADDRESS], email: [CONTACT EMAIL].</p>
+<h2>Data processed</h2>
+<p><b>Data you enter in the app</b> (expenses, deadlines, assets, vehicles, scenarios) stays in your browser (localStorage). If you create an account, it is copied to the cloud to sync across your devices.</p>
+<p><b>Account data</b>: email address and password (stored encrypted by our provider).</p>
+<p>We use no profiling cookies and no advertising. We only use technical browser storage needed for the app to work (preferences, language, login session).</p>
+<h2>Purposes and legal basis</h2>
+<p>Providing the service and your account (contract, GDPR art. 6.1.b); security and support (legitimate interest, art. 6.1.f).</p>
+<h2>Providers</h2>
+<p>Supabase (database and authentication, EU servers in Frankfurt); GitHub Pages (site hosting). Payments, when enabled: [PAYMENT PROVIDER]. Any non-EU transfers rely on standard contractual clauses.</p>
+<h2>Retention</h2>
+<p>Account data is kept while the account is active and deleted upon account deletion.</p>
+<h2>Your rights</h2>
+<p>Access, rectification, erasure, restriction, portability, objection, and the right to complain to your data protection authority. Write to [CONTACT EMAIL].</p>
+<h1>Terms of use</h1>
+<p>FinOnTop provides calculation and simulation tools for <b>informational purposes only</b>. Results are estimates based on the data you enter and are <b>not financial, tax, legal or investment advice</b>. Investing involves risk, including loss of capital. You are responsible for your own decisions.</p>
+<p>The service is provided "as is", with no warranty of being error-free or uninterrupted. To the extent permitted by law, the controller is not liable for damages arising from use of the results.</p>
+<p>Subscriptions and prices: [TO BE DEFINED when payments go live, including consumer withdrawal rights].</p>
+<p>Governing law: Italian. Last updated: [DATE].</p>`}};
+function L(l){document.documentElement.lang=l;c.innerHTML=D[l].h;wn.textContent=D[l].wn;bi.className=l=='it'?'on':'';be.className=l=='en'?'on':''}
+L((navigator.language||'it').startsWith('it')?'it':'en');
+</script></body></html>
