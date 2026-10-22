@@ -95,7 +95,7 @@ const Modules = {
       const presets = { l_mutuo: [200000, 20, 3.5, 25], l_auto: [25000, 5000, 6, 5], l_ristr: [40000, 0, 5, 8], l_arredo: [15000, 0, 7, 5], l_altro: [10000, 0, 6, 5] };
       root.innerHTML = head('prestiti', 'd_prestiti') + `<div class="card"><label>${t('loan_type')}</label><select class="f" id="lt">${Object.keys(presets).map(k => `<option value="${k}">${t(k)}</option>`).join('')}</select>
         ${slider('P', t('price'), 200000, 0, 1000000, 500)}${slider('D', t('down'), 40000, 0, 500000, 500)}${slider('T', t('tan'), 3.5, 0, 15, 0.05)}${slider('Y', t('years'), 25, 1, 40, 1)}
-        <div class="xbox"><b>🧾 ${t('fee_title')}</b>${slider('F', t('fee_up'), 0, 0, 5000, 10)}${slider('C', t('fee_m'), 0, 0, 30, 0.5)}</div>
+        <div class="xbox" id="fbox"><b>🧾 ${t('fee_title')}</b>${slider('F', t('fee_up'), 0, 0, 5000, 10)}${slider('C', t('fee_m'), 0, 0, 30, 0.5)}</div>
                 <div class="xbox"><b>💡 ${t('x_title')}</b>${slider('X', t('x_extra'), 100, 0, 1000, 10)}</div>
                 <div class="answer" id="ans"></div><div class="res" id="res"></div><canvas id="ch"></canvas><div class="legend"><span><i style="background:#0ea5e9"></i>${t('residual')}</span><span><i style="background:#f59e0b"></i>${t('interest')}</span><span><i style="background:#16a34a"></i>${t('x_leg')}</span></div>
         <p class="sub">${t('taeg_note')}</p>
@@ -105,8 +105,10 @@ const Modules = {
       const draw = () => {
         const fin = Math.max(val('P') - val('D'), 0), a = Core.amortization(fin, val('T'), val('Y'));
         $('ans').textContent = t('ans_loan', { p: fmt(a.pay), y: num(val('Y'), 1), i: fmt(a.interest) });
-        const tg = Core.taeg(fin, val('T'), val('Y'), val('F'), val('C'));
-        $('res').innerHTML = `<div>${t('financed')}<b>${fmt(fin)}</b></div><div>${t('monthly')}<b>${fmt(a.pay + val('C'))}</b></div><div>TAN<b>${num(tg.tan, 2)}%</b></div><div>TAEG<b class="${tg.taeg - tg.tan > 0.3 ? 'bad' : ''}">${num(tg.taeg, 2)}%</b></div><div>${t('int_tot')}<b class="bad">${fmt(a.interest)}</b></div><div>${t('fee_tot')}<b>${fmt(tg.extra)}</b></div><div>${t('repay')}<b>${fmt(a.total + tg.extra)}</b></div>`;
+        const mut = $('lt').value === 'l_mutuo';
+        $('fbox').style.display = mut ? 'none' : '';
+        const tg = Core.taeg(fin, val('T'), val('Y'), mut ? 0 : val('F'), mut ? 0 : val('C')), cm = mut ? 0 : val('C');
+        $('res').innerHTML = `<div>${t('financed')}<b>${fmt(fin)}</b></div><div>${t('monthly')}<b>${fmt(a.pay + cm)}</b></div>` + (mut ? '' : `<div>TAN<b>${num(tg.tan, 2)}%</b></div><div>TAEG<b class="${tg.taeg - tg.tan > 0.3 ? 'bad' : ''}">${num(tg.taeg, 2)}%</b></div>`) + `<div>${t('int_tot')}<b class="bad">${fmt(a.interest)}</b></div>` + (mut ? '' : `<div>${t('fee_tot')}<b>${fmt(tg.extra)}</b></div>`) + `<div>${t('repay')}<b>${fmt(a.total + tg.extra)}</b></div>`;
         const x = val('X'), pp = Core.prepay(fin, val('T'), val('Y'), x);
         if (x > 0 && fin > 0) {
           $('ans').textContent = t('x_ans', { x: fmt(x), m: pp.savedMonths, i: fmt(pp.savedInterest) });
