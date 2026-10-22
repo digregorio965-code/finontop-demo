@@ -96,10 +96,12 @@ const Modules = {
       root.innerHTML = head('prestiti', 'd_prestiti') + `<div class="card"><label>${t('loan_type')}</label><select class="f" id="lt">${Object.keys(presets).map(k => `<option value="${k}">${t(k)}</option>`).join('')}</select>
         ${slider('P', t('price'), 200000, 0, 1000000, 500)}${slider('D', t('down'), 40000, 0, 500000, 500)}${slider('T', t('tan'), 3.5, 0, 15, 0.05)}${slider('Y', t('years'), 25, 1, 40, 1)}
         <div class="xbox" id="fbox"><b>🧾 ${t('fee_title')}</b>${slider('F', t('fee_up'), 0, 0, 5000, 10)}${slider('C', t('fee_m'), 0, 0, 30, 0.5)}</div>
-                <div class="xbox"><b>💡 ${t('x_title')}</b>${slider('X', t('x_extra'), 100, 0, 1000, 10)}</div>
+                <div class="xbox"><b>💡 ${t('x_title')}</b>${slider('X', t('x_extra'), 100, 0, 1000, 10)}${slider('N', t('pen_lbl'), 0, 0, 3, 0.1)}</div>
                 <div class="answer" id="ans"></div><div class="res" id="res"></div><canvas id="ch"></canvas><div class="legend"><span><i style="background:#0ea5e9"></i>${t('residual')}</span><span><i style="background:#f59e0b"></i>${t('interest')}</span><span><i style="background:#16a34a"></i>${t('x_leg')}</span></div>
-        <p class="sub">${t('taeg_note')}</p>
-        <p class="noprint"><button onclick="print()">${t('print')}</button></p><table id="tb"></table></div>`;
+        <p class="sub">${t('taeg_note')}</p><p class="sub">${t('pen_note')}</p>
+        <p class="noprint"><button onclick="print()">${t('print')}</button> <button id="tbm"></button></p><table id="tb"></table></div>`;
+      let monthly = false;
+      $('tbm').onclick = () => { monthly = !monthly; draw(); };
       const set = k => { const [p, dpc, r, y] = presets[k]; $('P').value = $('PR').value = p; $('D').value = $('DR').value = Math.round(p * dpc / 100); $('T').value = $('TR').value = r; $('Y').value = $('YR').value = y; };
       $('lt').onchange = e => { set(e.target.value); draw(); };
       const draw = () => {
@@ -111,13 +113,16 @@ const Modules = {
         const x = val('X'), pp = Core.prepay(fin, val('T'), val('Y'), x);
         if (x > 0 && fin > 0) {
           $('ans').textContent = t('x_ans', { x: fmt(x), m: pp.savedMonths, i: fmt(pp.savedInterest) });
-          $('res').innerHTML += `<div>${t('x_saved_int')}<b class="ok">${fmt(pp.savedInterest)}</b></div><div>${t('x_saved_time')}<b class="ok">${pp.savedMonths} ${t('x_mo')}</b></div><div>${t('x_new_end')}<b>${pp.months} ${t('x_mo')}</b></div><div>${t('x_new_pay')}<b>${fmt(a.pay + x)}</b></div>`;
+          const pen = val('N') / 100 * x * pp.months;
+          $('res').innerHTML += `<div>${t('x_saved_int')}<b class="ok">${fmt(pp.savedInterest)}</b></div><div>${t('x_saved_time')}<b class="ok">${pp.savedMonths} ${t('x_mo')}</b></div><div>${t('x_new_end')}<b>${pp.months} ${t('x_mo')}</b></div><div>${t('x_new_pay')}<b>${fmt(a.pay + x)}</b></div>` + (pen > 0 ? `<div>${t('pen_cost')}<b class="bad">${fmt(pen)}</b></div><div>${t('pen_net')}<b class="${pp.savedInterest - pen >= 0 ? 'ok' : 'bad'}">${fmt(pp.savedInterest - pen)}</b></div>` : '');
         }
         const yr = a.rows.filter(r => r.k % 12 === 0), xb = k => (pp.rows[k - 1] ? pp.rows[k - 1].bal : 0);
         lineChart($('ch'), [[fin].concat(yr.map(r => r.bal)), [0].concat(yr.map(r => r.cum))].concat(x > 0 ? [[fin].concat(yr.map(r => xb(r.k)))] : []), ['#0ea5e9', '#f59e0b', '#16a34a'], [0].concat(yr.map(r => r.k / 12)));
-        $('tb').innerHTML = `<tr><th>${t('n_rate')}</th><th>${t('capital')}</th><th>${t('interest')}</th><th>${t('residual')}</th></tr>` + [a.rows[0]].concat(yr.filter(r => r.k !== 1)).filter(Boolean).map(r => `<tr><td>${r.k}</td><td>${fmt(r.cap)}</td><td>${fmt(r.int)}</td><td>${fmt(r.bal)}</td></tr>`).join('');
+        $('tbm').textContent = t(monthly ? 'tb_y' : 'tb_m');
+        const trs = monthly ? a.rows : [a.rows[0]].concat(yr.filter(r => r.k !== 1));
+        $('tb').innerHTML = `<tr><th>${t(monthly ? 'n_month' : 'n_rate')}</th><th>${t('capital')}</th><th>${t('interest')}</th><th>${t('residual')}</th></tr>` + trs.filter(Boolean).map(r => `<tr><td>${r.k}</td><td>${fmt(r.cap)}</td><td>${fmt(r.int)}</td><td>${fmt(r.bal)}</td></tr>`).join('');
       };
-      bind(['P', 'D', 'T', 'Y', 'F', 'C', 'X'], draw);
+      bind(['P', 'D', 'T', 'Y', 'F', 'C', 'X', 'N'], draw);
     }
   },
 
