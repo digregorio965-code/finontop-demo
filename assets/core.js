@@ -12,6 +12,17 @@ const Core = (() => {
     return { pay, rows, total: pay * m, interest: pay * m - P };
   }
 
+  function taeg(financed, tanPct, years, upfront, monthlyFee) {
+    const a = amortization(financed, tanPct, years), n = a.rows.length, cash = financed - upfront, pay = a.pay + monthlyFee;
+    if (!(cash > 0) || !n) return { tan: tanPct, taeg: tanPct, extra: 0 };
+    const pv = r => { let s = 0; for (let k = 1; k <= n; k++) s += pay / Math.pow(1 + r, k); return s; };
+    let lo = 0, hi = 1;
+    while (pv(hi) > cash && hi < 1e3) hi *= 2;
+    for (let i = 0; i < 100; i++) { const mid = (lo + hi) / 2; if (pv(mid) > cash) lo = mid; else hi = mid; }
+    const r = (lo + hi) / 2;
+    return { tan: tanPct, taeg: (Math.pow(1 + r, 12) - 1) * 100, extra: upfront + monthlyFee * n };
+  }
+
   function prepay(P, annualRate, years, extra) {
     const base = amortization(P, annualRate, years), i = annualRate / 1200;
     let bal = P, cum = 0, k = 0; const rows = [];
@@ -132,6 +143,6 @@ const Core = (() => {
     return lines.join('\r\n');
   }
 
-  return { amortization, prepay, compound, deposit, bondPrice, bondYield, bondNet, blackScholes, positionSize, certificate, nextOccurrence, iso, ics };
+  return { amortization, taeg, prepay, compound, deposit, bondPrice, bondYield, bondNet, blackScholes, positionSize, certificate, nextOccurrence, iso, ics };
 })();
 if (typeof module !== 'undefined') module.exports = Core;
