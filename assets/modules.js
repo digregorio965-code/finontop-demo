@@ -13,14 +13,41 @@ function daysUntil(x) {
 }
 const dueLabel = n => n < 0 ? `<span class="due">${n} ${t('days_left')}</span>` : n === 0 ? `<span class="due">${t('today')}</span>` : n <= 7 ? `<span class="soon">${n} ${t('days_left')}</span>` : `${n} ${t('days_left')}`;
 
+const addMonthsISO = (iso, i) => {
+  const [y, m, d] = iso.split('-').map(Number), dim = new Date(y, m + i, 0).getDate(), dt = new Date(y, m - 1 + i, Math.min(d, dim));
+  return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+};
+const VCATS = ['v_fuel', 'v_ins', 'v_tax', 'v_maint', 'v_tires', 'v_toll', 'v_fine', 'v_vother'];
+const Veh = {
+  list: () => Array.isArray(State.get().veh) ? State.get().veh : [],
+  costs: () => Array.isArray(State.get().vcost) ? State.get().vcost : [],
+  paidN(v) { const today = todayISO(); let n = 0; while (n < v.months && addMonthsISO(v.start, n) <= today) n++; return n; },
+  virtual() {
+    const out = [], today = todayISO(), vs = Veh.list();
+    vs.forEach(v => {
+      if (v.down > 0 && v.start <= today) out.push({ id: 'vd' + v.id, desc: v.name + ' · ' + t('v_down'), amt: v.down, cat: 'c_auto', date: v.start });
+      if (v.fee > 0) for (let i = 0, n = Veh.paidN(v); i < n; i++) out.push({ id: 'vr' + v.id + i, desc: v.name, amt: v.fee, cat: 'c_auto', date: addMonthsISO(v.start, i) });
+    });
+    Veh.costs().forEach(c => { const v = vs.find(x => x.id === c.vid); out.push({ id: 'vc' + c.id, desc: (v ? v.name + ' · ' : '') + (c.desc || t(c.cat)), amt: c.amt, cat: 'c_auto', date: c.date }); });
+    return out;
+  },
+  stats(v) {
+    const today = todayISO(), n = Veh.paidN(v), ex = Veh.costs().filter(c => c.vid === v.id), exTot = ex.reduce((a, c) => a + c.amt, 0);
+    const rates = v.fee * n + (v.start <= today ? v.down : 0), total = rates + exTot, [sy, sm] = v.start.split('-').map(Number), [ty, tm] = today.split('-').map(Number);
+    const el = v.start <= today ? Math.max(1, (ty - sy) * 12 + tm - sm + 1) : 0, left = Math.max(0, v.months - n), contract = v.down + v.fee * v.months;
+    return { n, left, leftAmt: left * v.fee, exTot, total, avg: el ? total / el : 0, contract, end: v.months > 0 ? addMonthsISO(v.start, v.months - 1) : '', ex };
+  }
+};
+const allExp = () => State.get().expenses.concat(Veh.virtual());
+
 const Modules = {
   home: {
     icon: '🏠', render(root) {
       const s = State.get(), m = todayISO().slice(0, 7);
-      const spent = s.expenses.filter(e => monthOf(e.date) === m).reduce((a, e) => a + e.amt, 0);
+      const spent = allExp().filter(e => monthOf(e.date) === m).reduce((a, e) => a + e.amt, 0);
       const nw = s.assets.reduce((a, x) => a + (x.kind === 'debt' ? -x.val : x.val), 0);
       const nxt = s.deadlines.map(x => ({ x, ...daysUntil(x) })).sort((a, b) => a.days - b.days).slice(0, 3);
-      const tiles = ['spese', 'scadenze', 'prestiti', 'risparmio', 'patrimonio', 'invest', 'portafoglio', 'report'].map(id => `<a class="tile" href="#/${id}"><div class="ic">${Modules[id].icon}</div><h3>${t(id)}</h3><p>${t('d_' + id)}</p></a>`).join('');
+      const tiles = ['spese', 'scadenze', 'veicoli', 'prestiti', 'risparmio', 'patrimonio', 'invest', 'portafoglio', 'report'].map(id => `<a class="tile" href="#/${id}"><div class="ic">${Modules[id].icon}</div><h3>${t(id)}</h3><p>${t('d_' + id)}</p></a>`).join('');
       root.innerHTML = `<h1>${t('welcome')} 👋</h1><p class="sub tagline">${t('tagline')}</p>
       <div class="card"><label>${t('pick_profile')}</label><select class="f" id="prof">${['casa', 'attivita', 'inv'].map(p => `<option value="${p}" ${s.profile === p ? 'selected' : ''}>${t('p_' + (p === 'inv' ? 'inv' : p))}</option>`).join('')}</select></div>
       <div class="res"><div>${t('this_month')} · ${t('spese')}<b>${fmt(spent)}</b></div><div>${t('net_worth')}<b class="${nw < 0 ? 'bad' : 'ok'}">${fmt(nw)}</b></div></div>
@@ -190,6 +217,62 @@ const Modules = {
     }
   },
 
+  veicoli: {
+    icon: '🚗', render(root) {
+      const s = State.get(); s.veh = Veh.list(); s.vcost = Veh.costs();
+      root.innerHTML = head('veicoli', 'd_veicoli') + `<div class="cols"><div class="card"><b>${t('v_add')}</b>
+        <label>${t('v_name')}</label><input type="text" id="vn" maxlength="50"><label>${t('v_plate')}</label><input type="text" id="vp" maxlength="12">
+        <label>${t('v_type')}</label><select class="f" id="vt"><option value="noleggio">${t('v_noleggio')}</option><option value="leasing">${t('v_leasing')}</option><option value="own">${t('v_own')}</option></select>
+        <div id="vcon"><label>${t('v_start')}</label><input type="date" id="vs" value="${todayISO()}">
+        <label>${t('v_months')}</label><input type="number" id="vm" min="1" max="120" step="1" value="36" style="width:100%">
+        <label>${t('v_fee')}</label><input type="number" id="vf" min="0" step="0.01" style="width:100%">
+        <label>${t('v_down')}</label><input type="number" id="vd" min="0" step="0.01" value="0" style="width:100%"></div>
+        <p><button id="vadd">${t('add')}</button></p></div>
+        <div class="card"><b>${t('v_costs')}</b>
+        <label>${t('v_veh')}</label><select class="f" id="cv"></select>
+        <label>${t('category')}</label><select class="f" id="cc">${VCATS.map(c => `<option value="${c}">${t(c)}</option>`).join('')}</select>
+        <label>${t('amount')}</label><input type="number" id="ca" min="0" step="0.01" style="width:100%">
+        <label>${t('date')}</label><input type="date" id="ct" value="${todayISO()}"><label>${t('desc')}</label><input type="text" id="cd" maxlength="80">
+        <p><button id="cadd">${t('add')}</button></p></div></div>
+        <div class="card"><div id="vl"></div></div>
+        <div class="card"><b>${t('v_chart')}</b><canvas id="bar"></canvas><b>${t('v_extra')}</b><canvas id="pie"></canvas><div class="legend" id="lg"></div><div id="cl"></div>
+        <p class="sub">${t('v_note')}</p><p class="noprint"><button class="alt" id="vcsv">${t('csv')}</button> <button class="alt" onclick="print()">${t('print')}</button></p></div>`;
+      const draw = () => {
+        const vs = s.veh, cs = s.vcost;
+        $('cv').innerHTML = vs.map(v => `<option value="${esc(v.id)}">${esc(v.name)}</option>`).join('');
+        $('vl').innerHTML = vs.length ? vs.map(v => {
+          const k = Veh.stats(v), con = v.months > 0;
+          return `<div class="xbox"><b>🚗 ${esc(v.name)}${v.plate ? ' · ' + esc(v.plate) : ''}</b> <small>${t('v_' + v.type)}</small>
+          <div class="res"><div>${t('v_total')}<b>${fmt(k.total)}</b></div><div>${t('v_avg')}<b>${fmt(k.avg)}</b></div>${con ? `<div>${t('v_paid')}<b>${k.n} / ${v.months}</b></div><div>${t('v_leftamt')}<b>${fmt(k.leftAmt)}</b></div><div>${t('v_end')}<b>${esc(k.end)}</b></div><div>${t('v_contract')}<b>${fmt(k.contract)}</b></div>` : ''}${v.type === 'leasing' && v.redeem > 0 ? `<div>${t('v_withred')}<b>${fmt(k.contract + v.redeem)}</b></div>` : ''}<div>${t('v_extra')}<b>${fmt(k.exTot)}</b></div></div>
+          <p class="noprint"><button class="del" data-v="${esc(v.id)}">${t('del')}</button></p></div>`;
+        }).join('') : `<p class="sub">${t('v_none')}</p>`;
+        $('vl').querySelectorAll('[data-v]').forEach(b => b.onclick = () => { s.veh = s.veh.filter(v => v.id !== b.dataset.v); s.vcost = s.vcost.filter(c => c.vid !== b.dataset.v); State.save(); draw(); });
+        const by = {}; cs.forEach(c => by[c.cat] = (by[c.cat] || 0) + c.amt);
+        pieChart($('pie'), Object.keys(by).map(k => ({ label: t(k), value: by[k] })).sort((a, b) => b.value - a.value), $('lg'));
+        const ms = [], [y, mo] = todayISO().split('-').map(Number), V = Veh.virtual();
+        for (let i = 11; i >= 0; i--) ms.push(Core.iso(new Date(y, mo - 1 - i, 1)).slice(0, 7));
+        barChart($('bar'), ms.map(k => V.filter(e => monthOf(e.date) === k).reduce((a, e) => a + e.amt, 0)), ms.map(k => k.slice(2)));
+        const sorted = cs.slice().sort((a, b) => b.date.localeCompare(a.date));
+        $('cl').innerHTML = sorted.length ? `<table>${sorted.map(c => { const v = vs.find(x => x.id === c.vid); return `<tr><td>${esc(c.date)}</td><td>${esc(v ? v.name : '')}</td><td>${t(c.cat)}</td><td>${esc(c.desc || '')}</td><td>${fmt(c.amt)}</td><td class="noprint"><button class="del" data-c="${esc(c.id)}">${t('del')}</button></td></tr>`; }).join('')}</table>` : '';
+        $('cl').querySelectorAll('[data-c]').forEach(b => b.onclick = () => { s.vcost = s.vcost.filter(c => c.id !== b.dataset.c); State.save(); draw(); });
+      };
+      $('vt').onchange = () => { $('vcon').style.display = $('vt').value === 'own' ? 'none' : ''; };
+      $('vadd').onclick = () => {
+        const name = $('vn').value.trim(), own = $('vt').value === 'own', m = parseInt($('vm').value, 10), f = parseFloat($('vf').value) || 0, d = parseFloat($('vd').value) || 0;
+        if (!name || !$('vs').value || (!own && !(m >= 1))) return;
+        s.veh.push({ id: uid(), name, plate: $('vp').value.trim(), type: $('vt').value, start: $('vs').value, months: own ? 0 : m, fee: own ? 0 : f, down: own ? 0 : d, redeem: 0 });
+        State.save(); ['vn', 'vp', 'vf'].forEach(k => $(k).value = ''); draw();
+      };
+      $('cadd').onclick = () => {
+        const a = parseFloat($('ca').value); if (!(a > 0) || !$('ct').value || !$('cv').value) return;
+        s.vcost.push({ id: uid(), vid: $('cv').value, cat: $('cc').value, amt: a, date: $('ct').value, desc: $('cd').value.trim() });
+        State.save(); $('ca').value = ''; $('cd').value = ''; draw();
+      };
+      $('vcsv').onclick = () => download('veicoli.csv', toCSV([[t('date'), t('v_veh'), t('category'), t('desc'), t('amount')]].concat(Veh.virtual().sort((a, b) => a.date.localeCompare(b.date)).map(e => [e.date, '', e.cat === 'c_auto' ? t('c_auto') : e.cat, e.desc, e.amt]))), 'text/csv');
+      draw();
+    }
+  },
+
   report: {
     icon: '🧾', render(root, tab = 'month', off = 0) {
       const s = State.get(), L = s.lang;
@@ -202,11 +285,12 @@ const Modules = {
         return { from: Core.iso(a), to: Core.iso(b), a, b, bk };
       };
       const label = r => tab === 'year' ? String(r.a.getFullYear()) : tab === 'month' ? new Intl.DateTimeFormat(L, { month: 'long', year: 'numeric' }).format(r.a) : new Intl.DateTimeFormat(L, { day: 'numeric', month: 'short' }).format(r.a) + ' – ' + new Intl.DateTimeFormat(L, { day: 'numeric', month: 'short', year: 'numeric' }).format(r.b);
-      const pick = r => s.expenses.filter(e => e.date >= r.from && e.date <= r.to);
+      const AE = allExp();
+      const pick = r => AE.filter(e => e.date >= r.from && e.date <= r.to);
       const sum = l => l.reduce((a, e) => a + e.amt, 0);
       const cur = range(off), prv = range(off - 1), ex = pick(cur), px = pick(prv);
       const tot = sum(ex), ptot = sum(px);
-      const series = r => r.bk.map(([f, t2]) => sum(s.expenses.filter(e => e.date >= f && e.date <= t2)));
+      const series = r => r.bk.map(([f, t2]) => sum(AE.filter(e => e.date >= f && e.date <= t2)));
       const by = {}; ex.forEach(e => by[e.cat] = (by[e.cat] || 0) + e.amt);
       const due = [];
       s.deadlines.forEach(x => {

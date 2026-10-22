@@ -19,7 +19,7 @@ Object.keys(CL_I18N).forEach(l => Object.assign(I18N[l], CL_I18N[l]));
 
 const Cloud = (() => {
   const URL_ = 'https://joeskmcqsjheogklgrxu.supabase.co', KEY_ = 'sb_publishable_NBh994uHNaErMA15lJ7xGg_rz1jTw5C', AK = 'fot:auth';
-  const EX = ['lang', 'cur', 'theme', 'notified'], DATA = ['expenses', 'deadlines', 'assets', 'scen'];
+  const EX = ['lang', 'cur', 'theme', 'notified'], DATA = ['expenses', 'deadlines', 'assets', 'scen', 'veh', 'vcost'];
   let auth = null, timer = null, busy = false;
   try { auth = JSON.parse(localStorage.getItem(AK) || 'null'); } catch (e) { }
   const setAuth = a => { auth = a; if (a) localStorage.setItem(AK, JSON.stringify(a)); else localStorage.removeItem(AK); ui(); };
