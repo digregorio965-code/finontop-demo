@@ -326,7 +326,9 @@ const Modules = {
         <label>${t('ticker')}</label><input type="text" id="pt" maxlength="20"><label>${t('qty')}</label><input type="number" id="pq" min="0" step="any" style="width:100%">
         <label>${t('avg_cost')}</label><input type="number" id="pc" min="0" step="any" style="width:100%"><label>${t('last_price')}</label><input type="number" id="pl" min="0" step="any" style="width:100%">
         <p><button id="padd">${t('add')}</button></p>
-        <p class="noprint"><label>${t('import_csv')}</label><input type="file" id="pf" accept=".csv,.txt,text/csv"></p><p class="sub" id="pmsg"></p></div>
+        <p class="noprint"><label>${t('import_csv')}</label><input type="file" id="pf" accept=".csv,.txt,text/csv"></p>
+        <p class="noprint"><label>${t('px_key')}</label><input type="password" id="pk" autocomplete="off" style="width:100%"></p>
+        <p class="noprint"><button class="alt" id="pupd">${t('px_upd')}</button></p><p class="sub">${t('px_help')}</p><p class="sub" id="pmsg"></p></div>
         <div class="card"><div class="res" id="res"></div><canvas id="pie"></canvas><div class="legend" id="lg"></div></div></div>
         <div class="card"><div id="al"></div><p class="sub">${t('port_note')}</p><p class="noprint"><button onclick="print()">${t('print')}</button> <button id="pcsv">${t('csv')}</button></p></div>`;
       const draw = () => {
@@ -375,6 +377,23 @@ const Modules = {
         r.readAsText(f); e.target.value = '';
       };
       $('pcsv').onclick = () => download('portafoglio.csv', toCSV([[t('ticker'), t('qty'), t('avg_cost'), t('last_price'), t('value')]].concat(s.port.map(x => [x.t, x.q, x.c, x.l, x.q * x.l]))), 'text/csv');
+      $('pk').value = localStorage.getItem('pxkey') || '';
+      $('pk').onchange = () => { const k = $('pk').value.trim(); if (k) localStorage.setItem('pxkey', k); else localStorage.removeItem('pxkey'); };
+      if (s.portTs) $('pmsg').textContent = t('px_asof') + ' ' + new Date(s.portTs).toLocaleString();
+      $('pupd').onclick = async () => {
+        const k = $('pk').value.trim(); $('pk').onchange();
+        const syms = [...new Set(s.port.map(x => x.t.toUpperCase()))].filter(x => /^[A-Z0-9.:\-]{1,20}$/.test(x)).slice(0, 8);
+        if (!k || !syms.length) { $('pmsg').textContent = t('px_fail'); return; }
+        $('pupd').disabled = true;
+        try {
+          const j = await (await fetch('https://api.twelvedata.com/price?symbol=' + encodeURIComponent(syms.join(',')) + '&apikey=' + encodeURIComponent(k))).json();
+          const got = syms.length === 1 ? { [syms[0]]: j } : j; let n = 0;
+          s.port.forEach(x => { const v = parseFloat((got[x.t.toUpperCase()] || {}).price); if (v >= 0) { x.l = v; n++; } });
+          if (n) { s.portTs = Date.now(); State.save(); draw(); $('pmsg').textContent = t('px_done', { n }) + ' · ' + new Date(s.portTs).toLocaleString(); }
+          else $('pmsg').textContent = t('px_fail');
+        } catch (e) { $('pmsg').textContent = t('px_fail'); }
+        $('pupd').disabled = false;
+      };
       draw();
     }
   },
