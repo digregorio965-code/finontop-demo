@@ -105,8 +105,7 @@ const Modules = {
       const draw = () => {
         const fin = Math.max(val('P') - val('D'), 0), a = Core.amortization(fin, val('T'), val('Y'));
         $('ans').textContent = t('ans_loan', { p: fmt(a.pay), y: num(val('Y'), 1), i: fmt(a.interest) });
-        const mut = $('lt').value === 'l_mutuo';
-        $('fbox').style.display = mut ? 'none' : '';
+        const mut = false;
         const tg = Core.taeg(fin, val('T'), val('Y'), mut ? 0 : val('F'), mut ? 0 : val('C')), cm = mut ? 0 : val('C');
         $('res').innerHTML = `<div>${t('financed')}<b>${fmt(fin)}</b></div><div>${t('monthly')}<b>${fmt(a.pay + cm)}</b></div>` + (mut ? '' : `<div>TAN<b>${num(tg.tan, 2)}%</b></div><div>TAEG<b class="${tg.taeg - tg.tan > 0.3 ? 'bad' : ''}">${num(tg.taeg, 2)}%</b></div>`) + `<div>${t('int_tot')}<b class="bad">${fmt(a.interest)}</b></div>` + (mut ? '' : `<div>${t('fee_tot')}<b>${fmt(tg.extra)}</b></div>`) + `<div>${t('repay')}<b>${fmt(a.total + tg.extra)}</b></div>`;
         const x = val('X'), pp = Core.prepay(fin, val('T'), val('Y'), x);
