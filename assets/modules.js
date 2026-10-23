@@ -52,11 +52,9 @@ const Modules = {
       const nxt = s.deadlines.map(x => ({ x, ...daysUntil(x) })).sort((a, b) => a.days - b.days).slice(0, 3);
       const tiles = ['spese', 'scadenze', 'veicoli', 'prestiti', 'risparmio', 'patrimonio', 'invest', 'portafoglio', 'cassa', 'fido', 'pareggio', 'flotta', 'report'].map(id => `<a class="tile" href="#/${id}"><div class="ic">${Modules[id].icon}</div><h3>${t(id)}</h3><p>${t('d_' + id)}</p></a>`).join('');
       root.innerHTML = `<h1>${t('welcome')} 👋</h1><p class="sub tagline">${t('tagline')}</p>
-      <div class="card"><label>${t('pick_profile')}</label><select class="f" id="prof">${['casa', 'attivita', 'inv'].map(p => `<option value="${p}" ${s.profile === p ? 'selected' : ''}>${t('p_' + (p === 'inv' ? 'inv' : p))}</option>`).join('')}</select></div>
       <div class="res"><div>${t('this_month')} · ${t('spese')}<b>${fmt(spent)}</b></div><div>${t('net_worth')}<b class="${nw < 0 ? 'bad' : 'ok'}">${fmt(nw)}</b></div></div>
       ${nxt.length ? `<div class="card"><b>${t('due_next')}</b><table>${nxt.map(n => `<tr><td>${esc(n.x.title)}</td><td>${Core.iso(n.date)}</td><td>${dueLabel(n.days)}</td></tr>`).join('')}</table></div>` : ''}
       <div class="tiles">${tiles}</div>`;
-      $('prof').onchange = e => { s.profile = e.target.value; State.save(); };
     }
   },
 

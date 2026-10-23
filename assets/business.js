@@ -6,7 +6,7 @@ Modules.cassa = {
   icon: '📈', render(root) {
     const s = State.get();
     const start0 = Math.round(s.assets.filter(a => a.kind !== 'debt').reduce((a, x) => a + x.val, 0));
-    root.innerHTML = head('cassa', 'd_cassa') + `<div class="card">` +
+    root.innerHTML = head('cassa', 'd_cassa') + bizHelp('cassa') + `<div class="card">` +
       slider('S', t('cs_start'), start0, -20000, Math.max(50000, Math.ceil(start0 * 2 / 10000) * 10000), 100) + slider('M', t('cs_months'), 6, 3, 24, 1) +
       slider('I', t('cs_in'), 0, 0, 20000, 50) + slider('O', t('cs_out'), 0, 0, 20000, 50) +
       `<div class="answer" id="ans"></div><div class="res" id="res"></div><canvas id="ch"></canvas><div id="tb"></div><p class="sub">${t('cs_hint')}</p>${bizFoot()}</div>`;
@@ -36,7 +36,7 @@ Modules.cassa = {
 
 Modules.fido = {
   icon: '💳', render(root, tab = 'fido') {
-    root.innerHTML = head('fido', 'd_fido') + tabs([['fido', 'fd_t1'], ['card', 'fd_t2']], tab) + `<div class="card" id="box"></div>`;
+    root.innerHTML = head('fido', 'd_fido') + bizHelp('fido') + tabs([['fido', 'fd_t1'], ['card', 'fd_t2']], tab) + `<div class="card" id="box"></div>`;
     root.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => Modules.fido.render(root, b.dataset.tab));
     const box = $('box');
     if (tab === 'fido') {
@@ -66,7 +66,7 @@ Modules.fido = {
 
 Modules.pareggio = {
   icon: '⚖️', render(root) {
-    root.innerHTML = head('pareggio', 'd_pareggio') + `<div class="card">` +
+    root.innerHTML = head('pareggio', 'd_pareggio') + bizHelp('pareggio') + `<div class="card">` +
       slider('F', t('be_fix'), 3000, 0, 50000, 50) + slider('P', t('be_price'), 50, 1, 5000, 0.5) + slider('V', t('be_var'), 20, 0, 5000, 0.5) + slider('G', t('be_goal'), 1000, 0, 30000, 50) +
       `<div class="answer" id="ans"></div><div class="res" id="res"></div><canvas id="ch"></canvas><div class="legend"><span><i style="background:#16a34a"></i>${t('be_rl')}</span><span><i style="background:#ef4444"></i>${t('be_cl')}</span></div>${bizFoot()}</div>`;
     bind(['F', 'P', 'V', 'G'], () => {
@@ -88,7 +88,7 @@ Modules.flotta = {
     const draw = () => {
       s.veh = Veh.list();
       const late = s.veh.reduce((a, v) => a + FD.filter(k => st(v[k]) === '🔴').length, 0), soon = s.veh.reduce((a, v) => a + FD.filter(k => st(v[k]) === '🟠').length, 0);
-      root.innerHTML = head('flotta', 'd_flotta') + `<div class="card"><div class="cols"><div><label>${t('vk')}</label><select class="f" id="fk">${Object.keys(VKIND).map(k => `<option value="${k}">${VKIND[k]} ${t('vk_' + k)}</option>`).join('')}</select></div><div><label>${t('v_name')}</label><input type="text" id="fn" maxlength="50"></div><div><label>${t('v_plate')}</label><input type="text" id="fp" maxlength="12"></div></div><p class="noprint"><button id="fadd">${t('fl_add')}</button></p></div>
+      root.innerHTML = head('flotta', 'd_flotta') + bizHelp('flotta') + `<div class="card"><div class="cols"><div><label>${t('vk')}</label><select class="f" id="fk">${Object.keys(VKIND).map(k => `<option value="${k}">${VKIND[k]} ${t('vk_' + k)}</option>`).join('')}</select></div><div><label>${t('v_name')}</label><input type="text" id="fn" maxlength="50"></div><div><label>${t('v_plate')}</label><input type="text" id="fp" maxlength="12"></div></div><p class="noprint"><button id="fadd">${t('fl_add')}</button></p></div>
       <div class="card"><div class="answer">🔴 ${late} ${t('fl_late')} · 🟠 ${soon} ${t('fl_soon')}</div>${s.veh.length ? `<div style="overflow-x:auto"><table><tr><th>${t('fl_vehicle')}</th>${FD.map(k => `<th>${t('fl_' + k)}</th>`).join('')}<th class="noprint"></th></tr>${s.veh.map(v => `<tr><td>${VKIND[v.kind] || '🚗'} ${esc(v.name)}${v.plate ? '<br><small>' + esc(v.plate) + '</small>' : ''}</td>${FD.map(k => `<td>${st(v[k])}<br><input type="date" class="fd" data-v="${v.id}" data-k="${k}" value="${esc(v[k] || '')}"></td>`).join('')}<td class="noprint"><button data-del="${v.id}">✕</button></td></tr>`).join('')}</table></div>` : `<p>${t('fl_empty')}</p>`}${bizFoot()}</div>`;
       root.querySelectorAll('.fd').forEach(i => i.onchange = () => { const v = s.veh.find(x => x.id === i.dataset.v); if (v) { v[i.dataset.k] = i.value; State.save(); draw(); } });
       root.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { s.veh = s.veh.filter(v => v.id !== b.dataset.del); s.vcost = Veh.costs().filter(c => c.vid !== b.dataset.del); State.save(); draw(); });
