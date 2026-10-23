@@ -14,3 +14,19 @@ I18N.ro.ntf_eve = 'Actualizează cheltuielile de azi: benzină, cumpărături...
 I18N.pt.ntf_eve = 'Atualize as despesas de hoje: combustível, compras...';
 I18N.pl.ntf_eve = 'Zaktualizuj dzisiejsze wydatki: paliwo, zakupy...';
 I18N.da.ntf_eve = 'Opdater dagens udgifter: benzin, mad, café...';
+
+I18N.it.vk_bus = 'Pullman / autobus'; I18N.it.xs_extra = 'In più ti costa {a} ({p}% della cifra usata).'; I18N.it.xs_be = 'Per andare in pari devi vendere {u} pezzi, cioè incassare {r}.';
+I18N.de.vk_bus = 'Reisebus / Bus'; I18N.de.xs_extra = 'Du zahlst {a} extra ({p}% des genutzten Betrags).'; I18N.de.xs_be = 'Zum Break-even musst du {u} Stück verkaufen, also {r} einnehmen.';
+I18N.en.vk_bus = 'Coach / bus'; I18N.en.xs_extra = 'You pay {a} extra ({p}% of the amount used).'; I18N.en.xs_be = 'To break even you must sell {u} items, i.e. take in {r}.';
+I18N.fr.vk_bus = 'Autocar / bus'; I18N.fr.xs_extra = 'Vous payez {a} de plus ({p}% du montant utilisé).'; I18N.fr.xs_be = 'Pour atteindre l\'équilibre, vendez {u} unités, soit {r} d\'encaissements.';
+I18N.es.vk_bus = 'Autocar / autobús'; I18N.es.xs_extra = 'Pagas {a} de más ({p}% de la cifra usada).'; I18N.es.xs_be = 'Para no perder debes vender {u} unidades, es decir ingresar {r}.';
+I18N.pt.vk_bus = 'Autocarro / ônibus'; I18N.pt.xs_extra = 'Paga mais {a} ({p}% do valor usado).'; I18N.pt.xs_be = 'Para empatar tem de vender {u} unidades, ou seja, faturar {r}.';
+I18N.ro.vk_bus = 'Autocar'; I18N.ro.xs_extra = I18N.en.xs_extra; I18N.ro.xs_be = I18N.en.xs_be;
+I18N.sv.vk_bus = 'Buss'; I18N.sv.xs_extra = I18N.en.xs_extra; I18N.sv.xs_be = I18N.en.xs_be;
+I18N.hu.vk_bus = 'Busz'; I18N.hu.xs_extra = I18N.en.xs_extra; I18N.hu.xs_be = I18N.en.xs_be;
+I18N.fi.vk_bus = 'Linja-auto'; I18N.fi.xs_extra = I18N.en.xs_extra; I18N.fi.xs_be = I18N.en.xs_be;
+I18N.nl.vk_bus = 'Touringcar / bus'; I18N.nl.xs_extra = I18N.en.xs_extra; I18N.nl.xs_be = I18N.en.xs_be;
+I18N.cs.vk_bus = 'Autobus'; I18N.cs.xs_extra = I18N.en.xs_extra; I18N.cs.xs_be = I18N.en.xs_be;
+I18N.el.vk_bus = 'Λεωφορείο'; I18N.el.xs_extra = I18N.en.xs_extra; I18N.el.xs_be = I18N.en.xs_be;
+I18N.da.vk_bus = 'Bus'; I18N.da.xs_extra = I18N.en.xs_extra; I18N.da.xs_be = I18N.en.xs_be;
+I18N.pl.vk_bus = 'Autokar / autobus'; I18N.pl.xs_extra = I18N.en.xs_extra; I18N.pl.xs_be = I18N.en.xs_be;

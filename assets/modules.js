@@ -19,7 +19,7 @@ const addMonthsISO = (iso, i) => {
   const [y, m, d] = iso.split('-').map(Number), dim = new Date(y, m + i, 0).getDate(), dt = new Date(y, m - 1 + i, Math.min(d, dim));
   return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
 };
-const VKIND = { car: '🚗', moto: '🏍️', van: '🚚', other: '🛠️' };
+const VKIND = { car: '🚗', moto: '🏍️', van: '🚚', bus: '🚌', other: '🛠️' };
 const VCATS = ['v_ins', 'v_tax', 'v_maint', 'v_tires', 'v_toll', 'v_fine', 'v_vother'];
 const Veh = {
   list: () => Array.isArray(State.get().veh) ? State.get().veh : [],
@@ -71,14 +71,14 @@ const Modules = {
         <div class="res"><div>${t('total')}<b id="xtot"></b></div></div><canvas id="bar"></canvas><div id="xl"></div>
         <p class="noprint"><button class="alt" id="xcsv">${t('csv')}</button> <button class="alt" onclick="print()">${t('print')}</button></p></div>`;
       const draw = () => {
-        const rows = s.expenses.filter(e => monthOf(e.date) === month).sort((a, b) => b.date.localeCompare(a.date));
+        const rows = s.expenses.filter(e => monthOf(e.date) === month).sort((a, b) => a.date.localeCompare(b.date));
         $('xtot').textContent = fmt(rows.reduce((a, e) => a + e.amt, 0));
         const by = {}; rows.forEach(e => by[e.cat] = (by[e.cat] || 0) + e.amt);
         pieChart($('pie'), Object.keys(by).map(k => ({ label: t(k), value: by[k] })).sort((a, b) => b.value - a.value), $('lg'));
         const ms = [], [y, mo] = month.split('-').map(Number);
         for (let i = 5; i >= 0; i--) ms.push(Core.iso(new Date(y, mo - 1 - i, 1)).slice(0, 7));
         barChart($('bar'), ms.map(k => s.expenses.filter(e => monthOf(e.date) === k).reduce((a, e) => a + e.amt, 0)), ms.map(k => k.slice(2)));
-        $('xl').innerHTML = rows.length ? `<table>${rows.map(e => `<tr><td>${esc(e.desc)}</td><td>${t(e.cat)}</td><td>${e.date}</td><td>${fmt(e.amt)}</td><td class="noprint"><button class="del" data-id="${e.id}">${t('del')}</button></td></tr>`).join('')}</table>` : `<p class="sub">${t('empty')}</p>`;
+        $('xl').innerHTML = rows.length ? `<table>${rows.map(e => `<tr><td>${esc(e.desc)}</td><td>${t(e.cat)}</td><td>${e.date > todayISO() ? '🕒 ' : ''}${e.date}</td><td>${fmt(e.amt)}</td><td class="noprint"><button class="del" data-id="${e.id}">${t('del')}</button></td></tr>`).join('')}</table>` : `<p class="sub">${t('empty')}</p>`;
         $('xl').querySelectorAll('.del').forEach(b => b.onclick = () => { s.expenses = s.expenses.filter(e => e.id !== b.dataset.id); State.save(); draw(); });
       };
       $('xadd').onclick = () => {
@@ -267,7 +267,7 @@ const Modules = {
         const ms = [], [y, mo] = todayISO().split('-').map(Number), V = Veh.virtual();
         for (let i = 11; i >= 0; i--) ms.push(Core.iso(new Date(y, mo - 1 - i, 1)).slice(0, 7));
         barChart($('bar'), ms.map(k => V.filter(e => monthOf(e.date) === k).reduce((a, e) => a + e.amt, 0)), ms.map(k => k.slice(2)));
-        const sorted = cs.slice().sort((a, b) => b.date.localeCompare(a.date));
+        const sorted = cs.slice().sort((a, b) => a.date.localeCompare(b.date));
         $('cl').innerHTML = sorted.length ? `<table>${sorted.map(c => { const v = vs.find(x => x.id === c.vid); return `<tr><td>${esc(c.date)}</td><td>${esc(v ? v.name : '')}</td><td>${t(c.cat)}</td><td>${esc(c.desc || '')}</td><td>${fmt(c.amt)}</td><td class="noprint"><button class="del" data-c="${esc(c.id)}">${t('del')}</button></td></tr>`; }).join('')}</table>` : '';
         $('cl').querySelectorAll('[data-c]').forEach(b => b.onclick = () => { s.vcost = s.vcost.filter(c => c.id !== b.dataset.c); State.save(); draw(); });
       };

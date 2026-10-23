@@ -41,12 +41,12 @@ Modules.fido = {
     const box = $('box');
     if (tab === 'fido') {
       box.innerHTML = slider('U', t('fd_used'), 5000, 0, 100000, 100) + slider('G', t('fd_gr'), 10000, 0, 100000, 500) + slider('T', t('fd_tan'), 12, 0, 25, 0.1) + slider('D', t('fd_days'), 90, 1, 365, 1) + slider('C', t('fd_cdf'), 0.5, 0, 2, 0.01) + slider('F', t('fd_fix'), 0, 0, 200, 1) +
-        `<div class="res" id="res"></div><canvas id="pie"></canvas><div class="legend" id="lg"></div>${bizFoot()}`;
+        `<div class="res" id="res"></div><div class="answer" id="lg"></div>${bizFoot()}`;
       bind(['U', 'G', 'T', 'D', 'C', 'F'], () => {
         const i = val('U') * val('T') / 100 * val('D') / 365, c = val('G') * val('C') / 100 * (val('D') / 90), f = val('F'), tot = i + c + f;
         const eff = val('U') > 0 ? tot / val('U') * 365 / val('D') * 100 : 0;
-        $('res').innerHTML = `<div>${t('fd_int')}<b>${fmt(i)}</b></div><div>${t('fd_cdfv')}<b>${fmt(c)}</b></div><div>${t('fd_tot')}<b class="bad">${fmt(tot)}</b></div><div>${t('fd_eff')}<b>${num(eff, 2)}%</b></div>`;
-        pieChart($('pie'), [{ label: t('fd_int'), value: i }, { label: t('fd_cdfv'), value: c }, { label: t('fd_fix'), value: f }].filter(x => x.value > 0), $('lg'));
+        $('res').innerHTML = `<div>${t('fd_int')}<b>${fmt(i)}</b></div><div>${t('fd_cdfv')}<b>${fmt(c)}</b></div><div>${t('fd_tot')}<b class="bad">${fmt(tot)}</b></div><div>${t('fd_eff')}<b>${num(eff, 2)}%</b></div>`; $('lg').innerHTML = `<span>${t('xs_extra', { a: fmt(tot), p: num(val('U') > 0 ? tot / val('U') * 100 : 0, 2) })}</span>`;
+        
       });
     } else {
       box.innerHTML = slider('A', t('cr_amt'), 2000, 100, 50000, 50) + slider('T', t('fd_tan'), 18, 0, 30, 0.1) + slider('R', t('cr_rate'), 100, 10, 5000, 5) +
@@ -58,7 +58,8 @@ Modules.fido = {
         while (bal > 0.005 && k < 1200) { const i = bal * r, p = Math.min(R, bal + i); bal = bal + i - p; paid += p; k++; pts.push(Math.max(bal, 0)); }
         $('ch').style.display = ''; $('ans').textContent = '';
         $('res').innerHTML = `<div>${t('cr_mo')}<b>${k}</b></div><div>${t('cr_int')}<b class="bad">${fmt(paid - A)}</b></div><div>${t('cr_tot')}<b>${fmt(paid)}</b></div>`;
-        lineChart($('ch'), [pts], ['#ef4444'], pts.map((_, i) => i));
+        $('ans').textContent = t('xs_extra', { a: fmt(paid - A), p: num((paid - A) / A * 100, 1) });
+        $('ch').style.display = 'none';
       });
     }
   }
@@ -76,7 +77,7 @@ Modules.pareggio = {
       const u = Math.ceil(F / m), gu = Math.ceil((F + G) / m), top = Math.max(u, gu, 1) * 1.5, us = [], rev = [], cost = [];
       for (let i = 0; i <= 20; i++) { const x = top * i / 20; us.push(Math.round(x)); rev.push(x * P); cost.push(F + x * V); }
       $('res').innerHTML = `<div>${t('be_unit')}<b>${fmt(m)}</b></div><div>${t('be_units')}<b>${num(u, 0)}</b></div><div>${t('be_rev')}<b>${fmt(u * P)}</b></div><div>${t('be_goalu')}<b class="ok">${num(gu, 0)}</b></div>`;
-      lineChart($('ch'), [rev, cost], ['#16a34a', '#ef4444'], us);
+      $('ans').textContent = t('xs_be', { u: num(u, 0), r: fmt(u * P) }); $('ch').style.display = 'none';
     });
   }
 };
