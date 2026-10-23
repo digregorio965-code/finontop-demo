@@ -1,8 +1,8 @@
 // Piani: free < base < pro. Finché PLANS_ON è false (pagamenti non attivi) tutti hanno accesso completo.
 // Anteprima per i test: app/?plan=free  oppure  app/?plan=base  (vale solo per la sessione).
 const PLANS_ON = false;
-const PLAN_RANK = { free: 0, base: 1, pro: 2 };
-const PLAN_OF = { home: 'free', spese: 'free', scadenze: 'free', patrimonio: 'free', report: 'free', prestiti: 'base', risparmio: 'base', veicoli: 'base', invest: 'pro', portafoglio: 'pro' };
+const PLAN_RANK = { free: 0, base: 1, pro: 2, business: 3 };
+const PLAN_OF = { home: 'free', spese: 'free', scadenze: 'free', patrimonio: 'free', report: 'free', prestiti: 'base', risparmio: 'base', veicoli: 'base', invest: 'pro', portafoglio: 'pro', cassa: 'business', fido: 'business', pareggio: 'business' };
 const PLAN_I18N = {
   it: { pl_lock: 'Funzione disponibile nel piano', pl_text: 'Passa a un piano superiore per sbloccare questo strumento.', pl_see: 'Vedi i piani', pl_cur: 'Il tuo piano' },
   en: { pl_lock: 'Feature available in the plan', pl_text: 'Upgrade to unlock this tool.', pl_see: 'See plans', pl_cur: 'Your plan' },
@@ -27,8 +27,8 @@ const Plan = {
     if (!PLANS_ON) {
       const q = new URLSearchParams(location.search).get('plan');
       if (q in PLAN_RANK) { try { sessionStorage.setItem('plan', q); } catch (e) { } }
-      let p = 'pro'; try { p = sessionStorage.getItem('plan') || 'pro'; } catch (e) { }
-      return p in PLAN_RANK ? p : 'pro';
+      let p = 'business'; try { p = sessionStorage.getItem('plan') || 'business'; } catch (e) { }
+      return p in PLAN_RANK ? p : 'business';
     }
     const p = State.get().plan;
     return p in PLAN_RANK ? p : 'free';
