@@ -71,12 +71,12 @@ Modules.pareggio = {
     root.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => Modules.pareggio.render(root, b.dataset.tab));
     const box = $('box'), s = State.get();
     if (tab === 'simple') {
-      box.innerHTML = slider('F', t('be_fix'), 3000, 0, 50000, 50) + slider('R', t('mx_rev'), 8000, 0, 200000, 100) + slider('V', t('mx_var'), 40, 0, 95, 1) + slider('G', t('be_goal'), 1000, 0, 30000, 50) +
+      box.innerHTML = slider('F', t('be_fix'), 3000, 0, 50000, 50) + slider('R', t('mx_rev'), 8000, 0, 200000, 100) + slider('V', t('mx_var'), 40, 0, 95, 1) +
         `<div class="answer" id="ans"></div><div class="res" id="res"></div>${bizFoot()}`;
-      bind(['F', 'R', 'V', 'G'], () => {
-        const F = val('F'), R = val('R'), m = 1 - val('V') / 100, G = val('G'), be = F / m, gr = (F + G) / m, gap = R - be;
+      bind(['F', 'R', 'V'], () => {
+        const F = val('F'), R = val('R'), m = 1 - val('V') / 100, be = F / m, gap = R - be;
         $('ans').textContent = gap >= 0 ? t('mx_ok', { b: fmt(be), g: fmt(gap), p: num(R > 0 ? gap / R * 100 : 0, 0) }) : t('mx_ko', { b: fmt(be), g: fmt(-gap) });
-        $('res').innerHTML = `<div>${t('be_rev')}<b>${fmt(be)}</b></div><div>${t('be_goalu')}<b class="ok">${fmt(gr)}</b></div><div>${t('mx_profit')}<b class="${R * m - F < 0 ? 'bad' : 'ok'}">${fmt(R * m - F)}</b></div>`;
+        $('res').innerHTML = `<div>${t('be_rev')}<b>${fmt(be)}</b></div><div>${t('mx_profit')}<b class="${R * m - F < 0 ? 'bad' : 'ok'}">${fmt(R * m - F)}</b></div>`;
       });
     } else if (tab === 'multi') {
       s.pg = Array.isArray(s.pg) ? s.pg : [];
@@ -94,13 +94,13 @@ Modules.pareggio = {
       $('pa').onclick = () => { const n = $('pn').value.trim(), p = parseFloat($('pp').value), c = parseFloat($('pc').value) || 0, u = parseFloat($('pu').value); if (!n || !(p > 0) || !(u > 0)) return; s.pg.push({ id: uid(), n, p, c, u }); State.save(); ['pn', 'pp', 'pc', 'pu'].forEach(k => $(k).value = ''); draw(); };
       bind(['F'], draw);
     } else {
-      box.innerHTML = slider('F', t('be_fix'), 3000, 0, 50000, 50) + slider('P', t('be_price'), 50, 1, 5000, 0.5) + slider('V', t('be_var'), 20, 0, 5000, 0.5) + slider('G', t('be_goal'), 1000, 0, 30000, 50) +
+      box.innerHTML = slider('F', t('be_fix'), 3000, 0, 50000, 50) + slider('P', t('be_price'), 50, 1, 5000, 0.5) + slider('V', t('be_var'), 20, 0, 5000, 0.5) +
         `<div class="answer" id="ans"></div><div class="res" id="res"></div>${bizFoot()}`;
-      bind(['F', 'P', 'V', 'G'], () => {
-        const F = val('F'), P = val('P'), V = val('V'), G = val('G'), m = P - V;
+      bind(['F', 'P', 'V'], () => {
+        const F = val('F'), P = val('P'), V = val('V'), m = P - V;
         if (m <= 0) { $('ans').textContent = t('be_bad'); $('res').innerHTML = ''; return; }
-        const u = Math.ceil(F / m), gu = Math.ceil((F + G) / m);
-        $('res').innerHTML = `<div>${t('be_unit')}<b>${fmt(m)}</b></div><div>${t('be_units')}<b>${num(u, 0)}</b></div><div>${t('be_rev')}<b>${fmt(u * P)}</b></div><div>${t('be_goalu')}<b class="ok">${num(gu, 0)}</b></div>`;
+        const u = Math.ceil(F / m);
+        $('res').innerHTML = `<div>${t('be_unit')}<b>${fmt(m)}</b></div><div>${t('be_units')}<b>${num(u, 0)}</b></div><div>${t('be_rev')}<b>${fmt(u * P)}</b></div>`;
         $('ans').textContent = t('xs_be', { u: num(u, 0), r: fmt(u * P) });
       });
     }
