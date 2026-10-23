@@ -44,7 +44,7 @@ const Cloud = (() => {
     auth.cloudAt = at; localStorage.setItem(AK, JSON.stringify(auth));
   };
   const pull = async () => { const tok = await token(); if (!tok) return null; const r = await api('/rest/v1/user_data?select=data,updated_at', {}, tok); return r && r[0] || null; };
-  const apply = row => { Object.assign(State.get(), row.data); origSave(); auth.cloudAt = row.updated_at; localStorage.setItem(AK, JSON.stringify(auth)); route(); };
+  const apply = row => { Object.assign(State.get(), row.data); State.prof.load(); origSave(); auth.cloudAt = row.updated_at; localStorage.setItem(AK, JSON.stringify(auth)); route(); };
   const sync = async () => {
     if (!auth || busy) return; busy = true;
     try {

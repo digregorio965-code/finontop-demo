@@ -18,3 +18,19 @@ const HELP_VALS = {
 };
 Object.keys(HELP_VALS).forEach(l => HELP_KEYS.forEach((k, i) => { I18N[l][k] = HELP_VALS[l][i]; }));
 const bizHelp = k => `<details class="xbox" open><summary><b>💡 ${t('help_t')}</b></summary><p>${t('help_' + k)}</p></details>`;
+
+I18N.es.p_attivita = 'Empresa / negocio'; I18N.es.all_tog = 'Mostrar todo junto (hogar + empresa + inversor)';
+I18N.fr.p_attivita = 'Société / entreprise'; I18N.fr.all_tog = 'Tout afficher ensemble (maison + société + investisseur)';
+I18N.sv.p_attivita = 'Företag / firma'; I18N.sv.all_tog = 'Visa allt tillsammans (hem + företag + investerare)';
+I18N.hu.p_attivita = 'Cég / vállalkozás'; I18N.hu.all_tog = 'Minden együtt (otthon + cég + befektető)';
+I18N.de.p_attivita = 'Firma / Unternehmen'; I18N.de.all_tog = 'Alles zusammen anzeigen (Haushalt + Firma + Anleger)';
+I18N.fi.p_attivita = 'Yritys / toiminimi'; I18N.fi.all_tog = 'Näytä kaikki yhdessä (koti + yritys + sijoittaja)';
+I18N.el.p_attivita = 'Εταιρεία / επιχείρηση'; I18N.el.all_tog = 'Εμφάνιση όλων μαζί (σπίτι + εταιρεία + επενδυτής)';
+I18N.nl.p_attivita = 'Bedrijf / onderneming'; I18N.nl.all_tog = 'Alles samen tonen (thuis + bedrijf + belegger)';
+I18N.cs.p_attivita = 'Firma / společnost'; I18N.cs.all_tog = 'Zobrazit vše společně (domácnost + firma + investor)';
+I18N.en.p_attivita = 'Company / business'; I18N.en.all_tog = 'Show everything together (home + business + investor)';
+I18N.it.p_attivita = 'Società / ditta'; I18N.it.all_tog = 'Mostra tutto insieme (casa + ditta + investitore)';
+I18N.ro.p_attivita = 'Firmă / societate'; I18N.ro.all_tog = 'Arată totul împreună (casă + firmă + investitor)';
+I18N.pt.p_attivita = 'Empresa / negócio'; I18N.pt.all_tog = 'Mostrar tudo junto (casa + empresa + investidor)';
+I18N.pl.p_attivita = 'Firma / spółka'; I18N.pl.all_tog = 'Pokaż wszystko razem (dom + firma + inwestor)';
+I18N.da.p_attivita = 'Virksomhed / firma'; I18N.da.all_tog = 'Vis alt samlet (hjem + firma + investor)';

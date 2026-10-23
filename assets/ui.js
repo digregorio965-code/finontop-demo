@@ -3,8 +3,20 @@ const State = (() => {
   const def = { lang: 'it', cur: 'EUR', profile: 'casa', country: 'IT', theme: 'light', expenses: [], deadlines: [], assets: [], notified: {} };
   let s;
   try { s = Object.assign({}, def, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { s = Object.assign({}, def); }
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { alert('Storage error'); } };
-  return { get: () => s, save };
+  const PK = ['expenses', 'deadlines', 'assets', 'veh', 'vcost', 'port'], PS = ['casa', 'attivita', 'inv'];
+  const live = k => Array.isArray(s[k]) ? s[k] : [];
+  const flush = () => {
+    if (!s.bag) { s.bag = {}; PS.forEach(p => { s.bag[p] = {}; PK.forEach(k => s.bag[p][k] = p === s.profile ? live(k) : []); }); return; }
+    if (s.all) { PS.forEach(p => PK.forEach(k => s.bag[p][k] = [])); PK.forEach(k => live(k).forEach(x => { const p = PS.includes(x._p) ? x._p : s.profile; s.bag[p][k].push(x); })); }
+    else PK.forEach(k => s.bag[s.profile][k] = live(k));
+  };
+  const load = () => {
+    PK.forEach(k => { s[k] = s.all ? [].concat(...PS.map(p => (s.bag[p][k] || []).map(x => { x._p = p; return x; }))) : (s.bag[s.profile][k] || []); });
+  };
+  const save = () => { try { flush(); localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { alert('Storage error'); } };
+  if (!PS.includes(s.profile)) s.profile = 'casa';
+  flush(); load();
+  return { get: () => s, save, prof: { flush, load, set: p => { flush(); s.profile = p; load(); save(); }, all: v => { flush(); s.all = v; load(); save(); } } };
 })();
 
 const t = (k, vars) => {
