@@ -19,6 +19,7 @@ const addMonthsISO = (iso, i) => {
   const [y, m, d] = iso.split('-').map(Number), dim = new Date(y, m + i, 0).getDate(), dt = new Date(y, m - 1 + i, Math.min(d, dim));
   return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
 };
+const VKIND = { car: '🚗', moto: '🏍️', van: '🚚', other: '🛠️' };
 const VCATS = ['v_ins', 'v_tax', 'v_maint', 'v_tires', 'v_toll', 'v_fine', 'v_vother'];
 const Veh = {
   list: () => Array.isArray(State.get().veh) ? State.get().veh : [],
@@ -237,7 +238,7 @@ const Modules = {
     icon: '🚗', render(root) {
       const s = State.get(); s.veh = Veh.list(); s.vcost = Veh.costs();
       root.innerHTML = head('veicoli', 'd_veicoli') + `<div class="cols"><div class="card"><b>${t('v_add')}</b>
-        <label>${t('v_name')}</label><input type="text" id="vn" maxlength="50"><label>${t('v_plate')}</label><input type="text" id="vp" maxlength="12">
+        <label>${t('vk')}</label><select class="f" id="vk">${Object.keys(VKIND).map(k => `<option value="${k}">${VKIND[k]} ${t('vk_' + k)}</option>`).join('')}</select><label>${t('v_name')}</label><input type="text" id="vn" maxlength="50"><label>${t('v_plate')}</label><input type="text" id="vp" maxlength="12">
         <label>${t('v_type')}</label><select class="f" id="vt"><option value="noleggio">${t('v_noleggio')}</option><option value="leasing">${t('v_leasing')}</option><option value="own">${t('v_own')}</option></select>
         <div id="vcon"><label>${t('v_start')}</label><input type="date" id="vs" value="${todayISO()}">
         <label>${t('v_months')}</label><input type="number" id="vm" min="1" max="120" step="1" value="36" style="width:100%">
@@ -258,7 +259,7 @@ const Modules = {
         $('cv').innerHTML = vs.map(v => `<option value="${esc(v.id)}">${esc(v.name)}</option>`).join('');
         $('vl').innerHTML = vs.length ? vs.map(v => {
           const k = Veh.stats(v), con = v.months > 0;
-          return `<div class="xbox"><b>🚗 ${esc(v.name)}${v.plate ? ' · ' + esc(v.plate) : ''}</b> <small>${t('v_' + v.type)}</small>
+          return `<div class="xbox"><b>${VKIND[v.kind] || '🚗'} ${esc(v.name)}${v.plate ? ' · ' + esc(v.plate) : ''}</b> <small>${t('v_' + v.type)}</small>
           <div class="res"><div>${t('v_total')}<b>${fmt(k.total)}</b></div><div>${t('v_avg')}<b>${fmt(k.avg)}</b></div>${con ? `<div>${t('v_paid')}<b>${k.n} / ${v.months}</b></div><div>${t('v_leftamt')}<b>${fmt(k.leftAmt)}</b></div><div>${t('v_end')}<b>${esc(k.end)}</b></div><div>${t('v_contract')}<b>${fmt(k.contract)}</b></div>` : ''}${v.type === 'leasing' && v.redeem > 0 ? `<div>${t('v_withred')}<b>${fmt(k.contract + v.redeem)}</b></div>` : ''}<div>${t('v_extra')}<b>${fmt(k.exTot)}</b></div></div>
           <p class="noprint"><button class="del" data-v="${esc(v.id)}">${t('del')}</button></p></div>`;
         }).join('') : `<p class="sub">${t('v_none')}</p>`;
@@ -276,7 +277,7 @@ const Modules = {
       $('vadd').onclick = () => {
         const name = $('vn').value.trim(), own = $('vt').value === 'own', m = parseInt($('vm').value, 10), f = parseFloat($('vf').value) || 0, d = parseFloat($('vd').value) || 0;
         if (!name || !$('vs').value || (!own && !(m >= 1))) return;
-        s.veh.push({ id: uid(), name, plate: $('vp').value.trim(), type: $('vt').value, start: $('vs').value, months: own ? 0 : m, fee: own ? 0 : f, down: own ? 0 : d, redeem: 0 });
+        s.veh.push({ id: uid(), kind: $('vk').value, name, plate: $('vp').value.trim(), type: $('vt').value, start: $('vs').value, months: own ? 0 : m, fee: own ? 0 : f, down: own ? 0 : d, redeem: 0 });
         State.save(); ['vn', 'vp', 'vf'].forEach(k => $(k).value = ''); draw();
       };
       $('cadd').onclick = () => {

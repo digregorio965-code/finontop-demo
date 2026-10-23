@@ -16,3 +16,21 @@ const PAY_I18N = {
   hu: { sd_kind: 'Típus', k_out: 'Kiadás', k_in: 'Bevétel', sd_acc: 'Frissítendő számla', acc_none: '— nincs —', mk_paid: 'Kifizetve', mk_recv: 'Beérkezett', sd_note: 'Nyomd meg a „Kifizetve” vagy „Beérkezett” gombot: az összeg kikerül a kiválasztott számláról vagy ráérkezik (Vagyon). Az ismétlődők a következő időszakra lépnek.', hide_n: 'Összegek elrejtése/mutatása' }
 };
 Object.keys(PAY_I18N).forEach(l => Object.assign(I18N[l], PAY_I18N[l]));
+const VK_I18N = {
+  it: { vk: 'Tipo di mezzo', vk_car: 'Auto', vk_moto: 'Moto / scooter', vk_van: 'Furgone / camion', vk_other: 'Altro' },
+  en: { vk: 'Vehicle type', vk_car: 'Car', vk_moto: 'Motorcycle / scooter', vk_van: 'Van / truck', vk_other: 'Other' },
+  es: { vk: 'Tipo de vehículo', vk_car: 'Coche', vk_moto: 'Moto / scooter', vk_van: 'Furgoneta / camión', vk_other: 'Otro' },
+  de: { vk: 'Fahrzeugart', vk_car: 'Auto', vk_moto: 'Motorrad / Roller', vk_van: 'Transporter / Lkw', vk_other: 'Sonstiges' },
+  pl: { vk: 'Rodzaj pojazdu', vk_car: 'Samochód', vk_moto: 'Motocykl / skuter', vk_van: 'Van / ciężarówka', vk_other: 'Inne' },
+  sv: { vk: 'Fordonstyp', vk_car: 'Bil', vk_moto: 'Motorcykel / skoter', vk_van: 'Skåpbil / lastbil', vk_other: 'Annat' },
+  nl: { vk: 'Soort voertuig', vk_car: 'Auto', vk_moto: 'Motor / scooter', vk_van: 'Bestelwagen / vrachtwagen', vk_other: 'Overig' },
+  fi: { vk: 'Ajoneuvotyyppi', vk_car: 'Auto', vk_moto: 'Moottoripyörä / skootteri', vk_van: 'Pakettiauto / rekka', vk_other: 'Muu' },
+  fr: { vk: 'Type de véhicule', vk_car: 'Voiture', vk_moto: 'Moto / scooter', vk_van: 'Utilitaire / camion', vk_other: 'Autre' },
+  pt: { vk: 'Tipo de veículo', vk_car: 'Carro', vk_moto: 'Mota / scooter', vk_van: 'Carrinha / camião', vk_other: 'Outro' },
+  da: { vk: 'Køretøjstype', vk_car: 'Bil', vk_moto: 'Motorcykel / scooter', vk_van: 'Varebil / lastbil', vk_other: 'Andet' },
+  cs: { vk: 'Typ vozidla', vk_car: 'Auto', vk_moto: 'Motorka / skútr', vk_van: 'Dodávka / nákladní auto', vk_other: 'Jiné' },
+  ro: { vk: 'Tip de vehicul', vk_car: 'Mașină', vk_moto: 'Motocicletă / scuter', vk_van: 'Camionetă / camion', vk_other: 'Altul' },
+  el: { vk: 'Τύπος οχήματος', vk_car: 'Αυτοκίνητο', vk_moto: 'Μοτοσικλέτα / σκούτερ', vk_van: 'Φορτηγάκι / φορτηγό', vk_other: 'Άλλο' },
+  hu: { vk: 'Jármű típusa', vk_car: 'Autó', vk_moto: 'Motor / robogó', vk_van: 'Furgon / teherautó', vk_other: 'Egyéb' }
+};
+Object.keys(VK_I18N).forEach(l => Object.assign(I18N[l], VK_I18N[l]));
