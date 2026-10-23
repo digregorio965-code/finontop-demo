@@ -8,7 +8,9 @@ const tabs = (items, cur) => `<div class="tabs noprint">${items.map(([id, k]) =>
 const monthOf = d => d.slice(0, 7);
 
 function daysUntil(x) {
-  const today = todayISO(), nx = Core.nextOccurrence(x.date, x.rep, today);
+  const today = todayISO();
+  if (x.kind) return { date: new Date(x.date + 'T00:00:00'), days: Math.round((new Date(x.date + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000) };
+  const nx = Core.nextOccurrence(x.date, x.rep, today);
   return { date: nx, days: Math.round((nx - new Date(today + 'T00:00:00')) / 86400000) };
 }
 const dueLabel = n => n < 0 ? `<span class="due">${n} ${t('days_left')}</span>` : n === 0 ? `<span class="due">${t('today')}</span>` : n <= 7 ? `<span class="soon">${n} ${t('days_left')}</span>` : `${n} ${t('days_left')}`;
@@ -96,19 +98,33 @@ const Modules = {
       const s = State.get();
       root.innerHTML = head('scadenze', 'd_scadenze') + `<div class="cols"><div class="card">
         <label>${t('title')}</label><input type="text" id="sd" maxlength="80">
+        <label>${t('sd_kind')}</label><select class="f" id="sk"><option value="out">${t('k_out')}</option><option value="in">${t('k_in')}</option></select>
         <label>${t('amount')}</label><input type="number" id="sa" min="0" step="0.01" style="width:100%">
+        <label>${t('sd_acc')}</label><select class="f" id="sc"></select>
         <label>${t('date')}</label><input type="date" id="st" value="${todayISO()}">
         <label>${t('repeat')}</label><select class="f" id="sr"><option value="none">${t('r_none')}</option><option value="month">${t('r_month')}</option><option value="year">${t('r_year')}</option></select>
         <label>${t('alert_before')}</label><input type="number" id="sl" min="0" max="60" value="3" style="width:100%"><p><button id="sadd">${t('add')}</button></p></div>
-        <div class="card"><div id="sl2"></div><p class="noprint"><button id="sics" class="alt">${t('ics')}</button> <button id="snot" class="alt">${t('notif_on')}</button></p><p class="sub">${t('notif_note')}</p></div></div>`;
-      const draw = () => {
-        const list = s.deadlines.map(x => ({ x, ...daysUntil(x) })).sort((a, b) => a.days - b.days);
-        $('sl2').innerHTML = list.length ? `<table>${list.map(n => `<tr><td>${esc(n.x.title)}</td><td>${n.x.amt ? fmt(n.x.amt) : ''}</td><td>${Core.iso(n.date)}</td><td>${dueLabel(n.days)}</td><td><button class="del" data-id="${n.x.id}">${t('del')}</button></td></tr>`).join('')}</table>` : `<p class="sub">${t('empty')}</p>`;
-        $('sl2').querySelectorAll('.del').forEach(b => b.onclick = () => { s.deadlines = s.deadlines.filter(x => x.id !== b.dataset.id); State.save(); draw(); });
-      };
+        <div class="card"><div id="sl2"></div><p class="noprint"><button id="sics" class="alt">${t('ics')}</button> <button id="snot" class="alt">${t('notif_on')}</button></p>        <p class="sub">${t('notif_note')}</p><p class="sub">${t('sd_note')}</p></div></div>`;
+              const accs = () => s.assets.filter(a => a.kind !== 'debt');
+              $('sc').innerHTML = `<option value="">${t('acc_none')}</option>` + accs().map(a => `<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');
+              if (accs().length) $('sc').value = accs()[0].id;
+              const draw = () => {
+                const list = s.deadlines.map(x => ({ x, ...daysUntil(x) })).sort((a, b) => a.days - b.days);
+                $('sl2').innerHTML = list.length ? `<table>${list.map(n => { const k = n.x.kind; return `<tr><td>${esc(n.x.title)}</td><td class="${k === 'in' ? 'ok' : ''}">${n.x.amt ? (k === 'in' ? '+' : k === 'out' ? '−' : '') + fmt(n.x.amt) : ''}</td><td>${Core.iso(n.date)}</td><td>${dueLabel(n.days)}</td><td class="noprint">${k ? `<button class="ok" data-id="${n.x.id}">${t(k === 'in' ? 'mk_recv' : 'mk_paid')}</button> ` : ''}<button class="del" data-id="${n.x.id}">${t('del')}</button></td></tr>`; }).join('')}</table>` : `<p class="sub">${t('empty')}</p>`;
+                $('sl2').querySelectorAll('.del').forEach(b => b.onclick = () => { s.deadlines = s.deadlines.filter(x => x.id !== b.dataset.id); State.save(); draw(); });
+                $('sl2').querySelectorAll('button.ok').forEach(b => b.onclick = () => {
+                  const x = s.deadlines.find(d => d.id === b.dataset.id); if (!x) return;
+                  const a = s.assets.find(v => v.id === x.acc && v.kind !== 'debt');
+                  if (x.kind === 'out') s.expenses.push({ id: uid(), desc: x.title, amt: x.amt, cat: 'c_altro', date: todayISO() });
+                  if (a) a.val = Math.max(0, +(a.val + (x.kind === 'in' ? x.amt : -x.amt)).toFixed(2));
+                  if (x.rep === 'none') s.deadlines = s.deadlines.filter(d => d.id !== x.id);
+                  else { x.n = (x.n || 0) + 1; x.date = addMonthsISO(x.date0 || x.date, x.n * (x.rep === 'year' ? 12 : 1)); }
+                  State.save(); draw();
+                });
+              };
       $('sadd').onclick = () => {
         if (!$('sd').value.trim() || !$('st').value) return;
-        s.deadlines.push({ id: uid(), title: $('sd').value.trim(), amt: parseFloat($('sa').value) || 0, date: $('st').value, rep: $('sr').value, alert: Math.max(0, parseInt($('sl').value) || 0) });
+        s.deadlines.push({ id: uid(), title: $('sd').value.trim(), amt: parseFloat($('sa').value) || 0, date: $('st').value, date0: $('st').value, n: 0, kind: $('sk').value, acc: $('sc').value, rep: $('sr').value, alert: Math.max(0, parseInt($('sl').value) || 0) });
         State.save(); $('sd').value = ''; $('sa').value = ''; draw(); checkAlerts();
       };
       $('sics').onclick = () => s.deadlines.length && download('scadenze.ics', Core.ics(s.deadlines, APP_NAME), 'text/calendar');

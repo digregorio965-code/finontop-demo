@@ -107,3 +107,5 @@ header .logo{margin-right:0}.tick{margin-right:auto}
 .xbox{background:var(--res);border:1px dashed var(--brand);border-radius:12px;padding:10px 12px;margin:12px 0}
 
 #accd{border:1px solid var(--line);border-radius:14px;padding:20px;max-width:380px;width:90%;background:var(--card);color:var(--ink)}#accd::backdrop{background:rgba(0,0,0,.55)}#accd input{width:100%;margin:4px 0 10px}#accd .row{display:flex;gap:8px;flex-wrap:wrap}#hu{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.hid .res b,.hid td:not(.noprint),.hid .legend,.hid canvas,.hid input[type=number],.hid .big{filter:blur(8px);user-select:none}
