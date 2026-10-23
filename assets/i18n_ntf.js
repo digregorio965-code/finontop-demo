@@ -30,3 +30,19 @@ I18N.cs.vk_bus = 'Autobus'; I18N.cs.xs_extra = I18N.en.xs_extra; I18N.cs.xs_be =
 I18N.el.vk_bus = 'Λεωφορείο'; I18N.el.xs_extra = I18N.en.xs_extra; I18N.el.xs_be = I18N.en.xs_be;
 I18N.da.vk_bus = 'Bus'; I18N.da.xs_extra = I18N.en.xs_extra; I18N.da.xs_be = I18N.en.xs_be;
 I18N.pl.vk_bus = 'Autokar / autobus'; I18N.pl.xs_extra = I18N.en.xs_extra; I18N.pl.xs_be = I18N.en.xs_be;
+
+I18N.es.grp_veh = 'Vehículos'; I18N.es.grp_inv = 'Inversión';
+I18N.fr.grp_veh = 'Véhicules'; I18N.fr.grp_inv = 'Investissement';
+I18N.sv.grp_veh = 'Fordon'; I18N.sv.grp_inv = 'Investeringar';
+I18N.hu.grp_veh = 'Járművek'; I18N.hu.grp_inv = 'Befektetés';
+I18N.de.grp_veh = 'Fahrzeuge'; I18N.de.grp_inv = 'Investieren';
+I18N.fi.grp_veh = 'Ajoneuvot'; I18N.fi.grp_inv = 'Sijoittaminen';
+I18N.el.grp_veh = 'Οχήματα'; I18N.el.grp_inv = 'Επενδύσεις';
+I18N.nl.grp_veh = 'Voertuigen'; I18N.nl.grp_inv = 'Beleggen';
+I18N.cs.grp_veh = 'Vozidla'; I18N.cs.grp_inv = 'Investice';
+I18N.en.grp_veh = 'Vehicles'; I18N.en.grp_inv = 'Investing';
+I18N.it.grp_veh = 'Mezzi'; I18N.it.grp_inv = 'Investimenti';
+I18N.ro.grp_veh = 'Vehicule'; I18N.ro.grp_inv = 'Investiții';
+I18N.pt.grp_veh = 'Veículos'; I18N.pt.grp_inv = 'Investimento';
+I18N.pl.grp_veh = 'Pojazdy'; I18N.pl.grp_inv = 'Inwestycje';
+I18N.da.grp_veh = 'Køretøjer'; I18N.da.grp_inv = 'Investering';
