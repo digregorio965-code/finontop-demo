@@ -66,22 +66,46 @@ Modules.fido = {
 };
 
 Modules.pareggio = {
-  icon: '⚖️', render(root) {
-    root.innerHTML = head('pareggio', 'd_pareggio') + bizHelp('pareggio') + `<div class="card">` +
-      slider('F', t('be_fix'), 3000, 0, 50000, 50) + slider('P', t('be_price'), 50, 1, 5000, 0.5) + slider('V', t('be_var'), 20, 0, 5000, 0.5) + slider('G', t('be_goal'), 1000, 0, 30000, 50) +
-      `<div class="answer" id="ans"></div><div class="res" id="res"></div><canvas id="ch"></canvas><div class="legend"><span><i style="background:#16a34a"></i>${t('be_rl')}</span><span><i style="background:#ef4444"></i>${t('be_cl')}</span></div>${bizFoot()}</div>`;
-    bind(['F', 'P', 'V', 'G'], () => {
-      const F = val('F'), P = val('P'), V = val('V'), G = val('G'), m = P - V;
-      if (m <= 0) { $('ans').textContent = t('be_bad'); $('res').innerHTML = ''; $('ch').style.display = 'none'; return; }
-      $('ch').style.display = ''; $('ans').textContent = '';
-      const u = Math.ceil(F / m), gu = Math.ceil((F + G) / m), top = Math.max(u, gu, 1) * 1.5, us = [], rev = [], cost = [];
-      for (let i = 0; i <= 20; i++) { const x = top * i / 20; us.push(Math.round(x)); rev.push(x * P); cost.push(F + x * V); }
-      $('res').innerHTML = `<div>${t('be_unit')}<b>${fmt(m)}</b></div><div>${t('be_units')}<b>${num(u, 0)}</b></div><div>${t('be_rev')}<b>${fmt(u * P)}</b></div><div>${t('be_goalu')}<b class="ok">${num(gu, 0)}</b></div>`;
-      $('ans').textContent = t('xs_be', { u: num(u, 0), r: fmt(u * P) }); $('ch').style.display = 'none';
-    });
+  icon: '⚖️', render(root, tab = 'simple') {
+    root.innerHTML = head('pareggio', 'd_pareggio') + bizHelp('pareggio') + tabs([['simple', 'mx_t1'], ['multi', 'mx_t2'], ['unit', 'mx_t3']], tab) + `<div class="card" id="box"></div>`;
+    root.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => Modules.pareggio.render(root, b.dataset.tab));
+    const box = $('box'), s = State.get();
+    if (tab === 'simple') {
+      box.innerHTML = slider('F', t('be_fix'), 3000, 0, 50000, 50) + slider('R', t('mx_rev'), 8000, 0, 200000, 100) + slider('V', t('mx_var'), 40, 0, 95, 1) + slider('G', t('be_goal'), 1000, 0, 30000, 50) +
+        `<div class="answer" id="ans"></div><div class="res" id="res"></div>${bizFoot()}`;
+      bind(['F', 'R', 'V', 'G'], () => {
+        const F = val('F'), R = val('R'), m = 1 - val('V') / 100, G = val('G'), be = F / m, gr = (F + G) / m, gap = R - be;
+        $('ans').textContent = gap >= 0 ? t('mx_ok', { b: fmt(be), g: fmt(gap), p: num(R > 0 ? gap / R * 100 : 0, 0) }) : t('mx_ko', { b: fmt(be), g: fmt(-gap) });
+        $('res').innerHTML = `<div>${t('be_rev')}<b>${fmt(be)}</b></div><div>${t('be_goalu')}<b class="ok">${fmt(gr)}</b></div><div>${t('mx_profit')}<b class="${R * m - F < 0 ? 'bad' : 'ok'}">${fmt(R * m - F)}</b></div>`;
+      });
+    } else if (tab === 'multi') {
+      s.pg = Array.isArray(s.pg) ? s.pg : [];
+      box.innerHTML = `<b>${t('mx_add')}</b><label>${t('mx_name')}</label><input type="text" id="pn" maxlength="40"><div class="cols"><div><label>${t('be_price')}</label><input type="number" id="pp" min="0" step="0.01"></div><div><label>${t('be_var')}</label><input type="number" id="pc" min="0" step="0.01"></div><div><label>${t('mx_units')}</label><input type="number" id="pu" min="0" step="1"></div></div><p class="noprint"><button id="pa">${t('mx_addb')}</button></p><div id="pl"></div>` +
+        slider('F', t('be_fix'), 3000, 0, 50000, 50) + `<div class="answer" id="ans"></div><div class="res" id="res"></div>${bizFoot()}`;
+      const draw = () => {
+        const L = s.pg, rev = L.reduce((a, x) => a + x.p * x.u, 0), con = L.reduce((a, x) => a + (x.p - x.c) * x.u, 0), F = val('F');
+        $('pl').innerHTML = L.length ? `<table><tr><th></th><th>${t('be_unit')}</th><th>${t('mx_units')}</th><th class="noprint"></th></tr>${L.map(x => `<tr><td>${esc(x.n)}</td><td>${fmt(x.p - x.c)} (${num(x.p > 0 ? (x.p - x.c) / x.p * 100 : 0, 0)}%)</td><td>${num(x.u, 0)}</td><td class="noprint"><button data-d="${x.id}">✕</button></td></tr>`).join('')}</table>` : '';
+        $('pl').querySelectorAll('[data-d]').forEach(b => b.onclick = () => { s.pg = s.pg.filter(x => x.id !== b.dataset.d); State.save(); draw(); });
+        if (rev <= 0 || con <= 0) { $('ans').textContent = t('mx_need'); $('res').innerHTML = ''; return; }
+        const m = con / rev, be = F / m, f = be / rev;
+        $('ans').textContent = t('mx_multi', { b: fmt(be), p: num(f * 100, 0) });
+        $('res').innerHTML = `<div>${t('mx_cur')}<b>${fmt(rev)}</b></div><div>${t('be_rev')}<b>${fmt(be)}</b></div><div>${t('mx_profit')}<b class="${con - F < 0 ? 'bad' : 'ok'}">${fmt(con - F)}</b></div>`;
+      };
+      $('pa').onclick = () => { const n = $('pn').value.trim(), p = parseFloat($('pp').value), c = parseFloat($('pc').value) || 0, u = parseFloat($('pu').value); if (!n || !(p > 0) || !(u > 0)) return; s.pg.push({ id: uid(), n, p, c, u }); State.save(); ['pn', 'pp', 'pc', 'pu'].forEach(k => $(k).value = ''); draw(); };
+      bind(['F'], draw);
+    } else {
+      box.innerHTML = slider('F', t('be_fix'), 3000, 0, 50000, 50) + slider('P', t('be_price'), 50, 1, 5000, 0.5) + slider('V', t('be_var'), 20, 0, 5000, 0.5) + slider('G', t('be_goal'), 1000, 0, 30000, 50) +
+        `<div class="answer" id="ans"></div><div class="res" id="res"></div>${bizFoot()}`;
+      bind(['F', 'P', 'V', 'G'], () => {
+        const F = val('F'), P = val('P'), V = val('V'), G = val('G'), m = P - V;
+        if (m <= 0) { $('ans').textContent = t('be_bad'); $('res').innerHTML = ''; return; }
+        const u = Math.ceil(F / m), gu = Math.ceil((F + G) / m);
+        $('res').innerHTML = `<div>${t('be_unit')}<b>${fmt(m)}</b></div><div>${t('be_units')}<b>${num(u, 0)}</b></div><div>${t('be_rev')}<b>${fmt(u * P)}</b></div><div>${t('be_goalu')}<b class="ok">${num(gu, 0)}</b></div>`;
+        $('ans').textContent = t('xs_be', { u: num(u, 0), r: fmt(u * P) });
+      });
+    }
   }
 };
-
 Modules.flotta = {
   icon: '🚐', render(root) {
     const s = State.get(), FD = ['ins', 'tax', 'rev', 'svc'], today = todayISO();
