@@ -50,7 +50,7 @@ const Modules = {
       const spent = allExp().filter(e => monthOf(e.date) === m).reduce((a, e) => a + e.amt, 0);
       const nw = s.assets.reduce((a, x) => a + (x.kind === 'debt' ? -x.val : x.val), 0);
       const nxt = s.deadlines.map(x => ({ x, ...daysUntil(x) })).sort((a, b) => a.days - b.days).slice(0, 3);
-      const tiles = ['spese', 'scadenze', 'patrimonio', 'report', 'prestiti', 'risparmio', 'veicoli', 'flotta', 'invest', 'futures', 'portafoglio', 'cassa', 'fido', 'pareggio'].map(id => `<a class="tile" href="#/${id}"><div class="ic">${Modules[id].icon}</div><h3>${t(id)}</h3><p>${t('d_' + id)}</p></a>`).join('');
+      const tiles = ['spese', 'scadenze', 'patrimonio', 'appunti', 'report', 'prestiti', 'risparmio', 'veicoli', 'flotta', 'invest', 'futures', 'portafoglio', 'cassa', 'fido', 'pareggio'].map(id => `<a class="tile" href="#/${id}"><div class="ic">${Modules[id].icon}</div><h3>${t(id)}</h3><p>${t('d_' + id)}</p></a>`).join('');
       root.innerHTML = `<h1>${t('welcome')} 👋</h1><p class="sub tagline">${t('tagline')}</p>
       <div class="res"><div>${t('this_month')} · ${t('spese')}<b>${fmt(spent)}</b></div><div>${t('net_worth')}<b class="${nw < 0 ? 'bad' : 'ok'}">${fmt(nw)}</b></div></div>
       ${nxt.length ? `<div class="card"><b>${t('due_next')}</b><table>${nxt.map(n => `<tr><td>${esc(n.x.title)}</td><td>${Core.iso(n.date)}</td><td>${dueLabel(n.days)}</td></tr>`).join('')}</table></div>` : ''}

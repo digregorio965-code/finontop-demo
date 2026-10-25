@@ -3,7 +3,7 @@ const State = (() => {
   const def = { lang: 'it', cur: 'EUR', profile: 'casa', country: 'IT', theme: 'light', expenses: [], deadlines: [], assets: [], notified: {} };
   let s;
   try { s = Object.assign({}, def, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { s = Object.assign({}, def); }
-  const PK = ['expenses', 'deadlines', 'assets', 'veh', 'vcost', 'port'], PS = ['casa', 'attivita', 'inv'];
+  const PK = ['expenses', 'deadlines', 'assets', 'veh', 'vcost', 'port', 'notes'], PS = ['casa', 'attivita', 'inv'];
   const live = k => Array.isArray(s[k]) ? s[k] : [];
   const flush = () => {
     if (!s.bag) { s.bag = {}; PS.forEach(p => { s.bag[p] = {}; PK.forEach(k => s.bag[p][k] = p === s.profile ? live(k) : []); }); return; }
