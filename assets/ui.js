@@ -19,6 +19,16 @@ const State = (() => {
   return { get: () => s, save, prof: { flush, load, set: p => { flush(); s.profile = p; load(); save(); }, all: v => { flush(); s.all = v; load(); save(); } } };
 })();
 
+// Strumenti mostrati per profilo. Solo visualizzazione: i piani (plans.js) e i dati non cambiano.
+const PROFILE_TOOLS = {
+  casa: ['home', 'spese', 'scadenze', 'patrimonio', 'appunti', 'report', 'prestiti', 'risparmio', 'veicoli'],
+  attivita: ['home', 'spese', 'scadenze', 'patrimonio', 'appunti', 'report', 'prestiti', 'veicoli', 'flotta', 'cassa', 'fido', 'pareggio'],
+  inv: ['home', 'spese', 'scadenze', 'patrimonio', 'appunti', 'report', 'risparmio', 'invest', 'futures', 'portafoglio']
+};
+const toolShown = id => { const s = State.get(); return !!(s.all || s.navAll || (PROFILE_TOOLS[s.profile] || PROFILE_TOOLS.casa).includes(id)); };
+Object.assign(I18N.it, { nav_all: 'Mostra tutti gli strumenti', nav_less: 'Mostra solo quelli del profilo', start_t: 'Inizia da qui', start_d: 'Detta o scrivi la tua prima spesa: l’app la mette al posto giusto.', start_b: 'Apri Appunti e voce' });
+Object.assign(I18N.en, { nav_all: 'Show all tools', nav_less: 'Show only this profile’s tools', start_t: 'Start here', start_d: 'Dictate or type your first expense: the app files it in the right place.', start_b: 'Open Notes & voice' });
+
 const t = (k, vars) => {
   let v = (I18N[State.get().lang] || I18N.it)[k] || I18N.it[k] || k;
   if (vars) Object.keys(vars).forEach(x => v = v.replace('{' + x + '}', vars[x]));

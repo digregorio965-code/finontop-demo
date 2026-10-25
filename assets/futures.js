@@ -20,7 +20,7 @@ const FT_VALS = {
 Object.keys(FT_VALS).forEach(l => FT_KEYS.forEach((k, i) => { I18N[l][k] = FT_VALS[l][i]; }));
 
 Modules.futures = {
-  icon: '📊', render(root, tab = 'pp') {
+  icon: '🎯', render(root, tab = 'pp') {
     root.innerHTML = head('futures', 'd_futures') + tabs([['pp', 'ft_t1'], ['qty', 'ft_t2']], tab) + `<div class="card" id="box"></div>`;
     root.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => Modules.futures.render(root, b.dataset.tab));
     const cur = State.get().cur, box = $('box');

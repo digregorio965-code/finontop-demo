@@ -50,11 +50,13 @@ const Modules = {
       const spent = allExp().filter(e => monthOf(e.date) === m).reduce((a, e) => a + e.amt, 0);
       const nw = s.assets.reduce((a, x) => a + (x.kind === 'debt' ? -x.val : x.val), 0);
       const nxt = s.deadlines.map(x => ({ x, ...daysUntil(x) })).sort((a, b) => a.days - b.days).slice(0, 3);
-      const tiles = ['spese', 'scadenze', 'patrimonio', 'appunti', 'report', 'prestiti', 'risparmio', 'veicoli', 'flotta', 'invest', 'futures', 'portafoglio', 'cassa', 'fido', 'pareggio'].map(id => `<a class="tile" href="#/${id}"><div class="ic">${Modules[id].icon}</div><h3>${t(id)}</h3><p>${t('d_' + id)}</p></a>`).join('');
+      const fresh = !s.expenses.length && !s.deadlines.length && !(Array.isArray(s.notes) ? s.notes : []).length;
+      const start = fresh ? `<div class="card"><b>${t('start_t')}</b><p class="sub">${t('start_d')}</p><p><button onclick="location.hash='#/appunti'">${t('start_b')}</button></p></div>` : '';
+      const tiles = ['appunti', 'spese', 'scadenze', 'patrimonio', 'report', 'prestiti', 'risparmio', 'veicoli', 'flotta', 'invest', 'futures', 'portafoglio', 'cassa', 'fido', 'pareggio'].filter(toolShown).map(id => `<a class="tile" href="#/${id}"><div class="ic">${Modules[id].icon}</div><h3>${t(id)}</h3><p>${t('d_' + id)}</p></a>`).join('');
       root.innerHTML = `<h1>${t('welcome')} 👋</h1><p class="sub tagline">${t('tagline')}</p>
       <div class="res"><div>${t('this_month')} · ${t('spese')}<b>${fmt(spent)}</b></div><div>${t('net_worth')}<b class="${nw < 0 ? 'bad' : 'ok'}">${fmt(nw)}</b></div></div>
       ${nxt.length ? `<div class="card"><b>${t('due_next')}</b><table>${nxt.map(n => `<tr><td>${esc(n.x.title)}</td><td>${Core.iso(n.date)}</td><td>${dueLabel(n.days)}</td></tr>`).join('')}</table></div>` : ''}
-      <div class="tiles">${tiles}</div>`;
+      ${start}<div class="tiles">${tiles}</div>`;
     }
   },
 
@@ -293,7 +295,7 @@ const Modules = {
   },
 
   report: {
-    icon: '🧾', render(root, tab = 'month', off = 0) {
+    icon: '📑', render(root, tab = 'month', off = 0) {
       const s = State.get(), L = s.lang;
       const D = iso => new Date(iso + 'T12:00:00'), add = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
       const range = o => {

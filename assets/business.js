@@ -3,7 +3,7 @@ const monthLabel = (iso, long) => new Intl.DateTimeFormat(State.get().lang, long
 const bizFoot = () => `<p class="sub">${t('biz_disc')}</p><p class="noprint"><button onclick="print()">${t('print')}</button></p>`;
 
 Modules.cassa = {
-  icon: '📈', render(root) {
+  icon: '🗓️', render(root) {
     const s = State.get();
     const start0 = Math.round(s.assets.filter(a => a.kind !== 'debt').reduce((a, x) => a + x.val, 0));
     root.innerHTML = head('cassa', 'd_cassa') + bizHelp('cassa') + `<div class="card">` +
