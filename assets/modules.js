@@ -78,12 +78,16 @@ const Modules = {
         const ms = [], [y, mo] = month.split('-').map(Number);
         for (let i = 5; i >= 0; i--) ms.push(Core.iso(new Date(y, mo - 1 - i, 1)).slice(0, 7));
         barChart($('bar'), ms.map(k => s.expenses.filter(e => monthOf(e.date) === k).reduce((a, e) => a + e.amt, 0)), ms.map(k => k.slice(2)));
-        $('xl').innerHTML = rows.length ? `<table>${rows.map(e => `<tr><td>${esc(e.desc)}</td><td>${t(e.cat)}</td><td>${e.date > todayISO() ? '🕒 ' : ''}${e.date}</td><td>${fmt(e.amt)}</td><td class="noprint"><button class="del" data-id="${e.id}">${t('del')}</button></td></tr>`).join('')}</table>` : `<p class="sub">${t('empty')}</p>`;
+        const isP = e => e.paid !== undefined ? e.paid : e.date <= todayISO();
+        const tr = (e, p) => `<tr><td>${esc(e.desc)}</td><td>${t(e.cat)}</td><td>${e.date > todayISO() ? '🕒 ' : ''}${e.date}</td><td>${fmt(e.amt)}</td><td class="noprint">${p ? '' : `<button class="ok" data-id="${e.id}">✔ ${t('mk_paid')}</button> `}<button class="del" data-id="${e.id}">${t('del')}</button></td></tr>`;
+        const todo = rows.filter(e => !isP(e)), done = rows.filter(isP);
+        $('xl').innerHTML = rows.length ? (todo.length ? `<table>${todo.map(e => tr(e, 0)).join('')}</table>` : '') + (done.length ? `<details open><summary><b>✅ ${t('mk_paid')} (${done.length})</b></summary><table>${done.map(e => tr(e, 1)).join('')}</table></details>` : '') : `<p class="sub">${t('empty')}</p>`;
+        $('xl').querySelectorAll('.ok').forEach(b => b.onclick = () => { const e = s.expenses.find(x => x.id === b.dataset.id); if (e) { e.paid = true; State.save(); draw(); } });
         $('xl').querySelectorAll('.del').forEach(b => b.onclick = () => { s.expenses = s.expenses.filter(e => e.id !== b.dataset.id); State.save(); draw(); });
       };
       $('xadd').onclick = () => {
         const a = parseFloat($('xa').value); if (!(a > 0) || !$('xt').value) return;
-        s.expenses.push({ id: uid(), desc: $('xd').value.trim() || t($('xc').value), amt: a, cat: $('xc').value, date: $('xt').value });
+        s.expenses.push({ id: uid(), desc: $('xd').value.trim() || t($('xc').value), amt: a, cat: $('xc').value, date: $('xt').value, paid: $('xt').value <= todayISO() });
         State.save(); $('xd').value = ''; $('xa').value = ''; month = monthOf($('xt').value); $('xm').value = month; draw();
       };
       $('xm').onchange = e => { if (e.target.value) { month = e.target.value; draw(); } };
@@ -114,7 +118,7 @@ const Modules = {
                 $('sl2').querySelectorAll('button.ok').forEach(b => b.onclick = () => {
                   const x = s.deadlines.find(d => d.id === b.dataset.id); if (!x) return;
                   const a = s.assets.find(v => v.id === x.acc && v.kind !== 'debt');
-                  if (x.kind === 'out') s.expenses.push({ id: uid(), desc: x.title, amt: x.amt, cat: 'c_altro', date: todayISO() });
+                  if (x.kind === 'out') s.expenses.push({ id: uid(), desc: x.title, amt: x.amt, cat: 'c_altro', date: todayISO(), paid: true });
                   if (a) a.val = Math.max(0, +(a.val + (x.kind === 'in' ? x.amt : -x.amt)).toFixed(2));
                   if (x.rep === 'none') s.deadlines = s.deadlines.filter(d => d.id !== x.id);
                   else { x.n = (x.n || 0) + 1; x.date = addMonthsISO(x.date0 || x.date, x.n * (x.rep === 'year' ? 12 : 1)); }
